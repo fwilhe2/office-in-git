@@ -1,0 +1,8 @@
+repos:
+  - repo: local
+    hooks:
+      - id: flat-odf-cleanup
+        name: Clean flat odf files
+        entry: python scripts/flat-odf-cleanup.py
+        language: system
+        files: \.fod[spt]$
