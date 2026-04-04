@@ -7,6 +7,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
+# Extended version: removes all unused styles, declarations, and metadata
+# that are not required to re-open the file in LibreOffice without issues.
 
 # Source: https://github.com/LibreOffice/core/blob/11f10c48688436129337ffc7a082a56023c58071/bin/flat-odf-cleanup.py#L1
 
@@ -24,450 +26,762 @@ def log(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
-def get_used_p_styles(root):
-    elementnames = [
-        ".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}p",
-        ".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}h",
-        ".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}alphabetical-index-entry-template",
-        ".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}bibliography-entry-template",
-        ".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}illustration-index-entry-template",
-        ".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-source-style",
-        ".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}object-index-entry-template",
-        ".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}table-index-entry-template",
-        ".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}table-of-content-entry-template",
-        ".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}user-index-entry-template",
-    ]
+# ---------------------------------------------------------------------------
+# Namespace constants
+# ---------------------------------------------------------------------------
+NS_TEXT   = "urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+NS_STYLE  = "urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+NS_OFFICE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+NS_DRAW   = "urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
+NS_TABLE  = "urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+NS_CHART  = "urn:oasis:names:tc:opendocument:xmlns:chart:1.0"
+NS_PRES   = "urn:oasis:names:tc:opendocument:xmlns:presentation:1.0"
+NS_FORM   = "urn:oasis:names:tc:opendocument:xmlns:form:1.0"
+NS_DB     = "urn:oasis:names:tc:opendocument:xmlns:database:1.0"
+NS_NUMBER = "urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0"
+NS_SCRIPT = "urn:oasis:names:tc:opendocument:xmlns:script:1.0"
+NS_META   = "urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
+NS_OOO    = "http://openoffice.org/2009/office"
+NS_LOEXT  = "urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0"
+NS_FIELD  = "urn:openoffice:names:experimental:odf-extensions-field:xmlns:field:1.0"
 
-    # document content
-    ps = sum([root.findall(e) for e in elementnames], [])
-    usedpstyles = set()
-    usedcondstyles = set()
-    for p in ps:
-        usedpstyles.add(p.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}style-name"))
-        if p.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}cond-style-name"):
-            usedcondstyles.add(p.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}cond-style-name"))
-        if p.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}class-names"):
-            for style in p.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}class-names").split(" "):
-                usedpstyles.add(style)
-    for shape in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}text-style-name]"):
-        usedpstyles.add(shape.get("{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}text-style-name"))
-    for tabletemplate in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:table:1.0}paragraph-style-name]"):
-        usedpstyles.add(tabletemplate.get("{urn:oasis:names:tc:opendocument:xmlns:table:1.0}paragraph-style-name"))
-    for page in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}register-truth-ref-style-name]"):
-        usedpstyles.add(page.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}register-truth-ref-style-name"))
-    for form in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:form:1.0}text-style-name]"):
-        usedpstyles.add(form.get("{urn:oasis:names:tc:opendocument:xmlns:form:1.0}text-style-name"))
-    # conditional styles
-    for condstyle in usedcondstyles:
-        for map_ in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='paragraph'][@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name='" + condstyle + "']/{urn:oasis:names:tc:opendocument:xmlns:style:1.0}map"):
-            usedpstyles.add(map_.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}apply-style-name"))
-    # other styles
-    for notesconfig in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:text:1.0}default-style-name]"):
-        usedpstyles.add(notesconfig.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}default-style-name"))
-    return usedpstyles
+def qn(ns, local):
+    return "{%s}%s" % (ns, local)
+
+# ---------------------------------------------------------------------------
+# Attribute collection helpers
+# ---------------------------------------------------------------------------
+
+def collect_all_attribute(root, usedstyles, attribute):
+    for element in root.findall(".//*[@" + attribute + "]"):
+        v = element.get(attribute)
+        if v:
+            usedstyles.add(v)
+
+def collect_all_attribute_list(root, usedstyles, attribute):
+    for element in root.findall(".//*[@" + attribute + "]"):
+        v = element.get(attribute)
+        if v:
+            for style in v.split(" "):
+                if style:
+                    usedstyles.add(style)
+
+# ---------------------------------------------------------------------------
+# Style removal helpers
+# ---------------------------------------------------------------------------
 
 def add_parent_styles(usedstyles, styles):
+    """Transitively add parent-style-name and next-style-name."""
     size = -1
     while size != len(usedstyles):
         size = len(usedstyles)
         for style in styles:
-            if style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name") in usedstyles:
-                if style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}parent-style-name"):
-                    usedstyles.add(style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}parent-style-name"))
-                # only for paragraph styles and master-pages
-                if style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}next-style-name"):
-                    usedstyles.add(style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}next-style-name"))
+            name = style.get(qn(NS_STYLE, "name"))
+            if name in usedstyles:
+                parent = style.get(qn(NS_STYLE, "parent-style-name"))
+                if parent:
+                    usedstyles.add(parent)
+                nxt = style.get(qn(NS_STYLE, "next-style-name"))
+                if nxt:
+                    usedstyles.add(nxt)
+
+def _remove_from_parent(root, style):
+    """Remove *style* from whichever known container holds it."""
+    containers = [
+        qn(NS_OFFICE, "automatic-styles"),
+        qn(NS_OFFICE, "styles"),
+        qn(NS_OFFICE, "master-styles"),
+    ]
+    for tag in containers:
+        container = root.find(".//" + tag)
+        if container is not None:
+            try:
+                container.remove(style)
+                return
+            except ValueError:
+                pass
+    # fallback: ask lxml for the real parent
+    parent = style.getparent()
+    if parent is not None:
+        try:
+            parent.remove(style)
+        except ValueError:
+            pass
 
 def remove_unused_styles(root, usedstyles, styles, name):
     for style in styles:
-        log(style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name"))
-        if style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name") not in usedstyles:
-            log("removing unused " + name + " " + style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name"))
-            # it is really dumb that there is no parent pointer in dom
-            try:
-                root.find(".//{urn:oasis:names:tc:opendocument:xmlns:office:1.0}automatic-styles").remove(style)
-            except ValueError:
-                root.find(".//{urn:oasis:names:tc:opendocument:xmlns:office:1.0}styles").remove(style)
+        sname = style.get(qn(NS_STYLE, "name"))
+        log(sname)
+        if sname not in usedstyles:
+            log("removing unused %s %s" % (name, sname))
+            _remove_from_parent(root, style)
 
 def remove_unused_drawings(root, useddrawings, drawings, name):
     for drawing in drawings:
-        log(drawing.get("{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}name"))
-        if drawing.get("{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}name") not in useddrawings:
-            log("removing unused " + name + " " + drawing.get("{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}name"))
-            root.find(".//{urn:oasis:names:tc:opendocument:xmlns:office:1.0}styles").remove(drawing)
+        dname = drawing.get(qn(NS_DRAW, "name"))
+        log(dname)
+        if dname not in useddrawings:
+            log("removing unused %s %s" % (name, dname))
+            _remove_from_parent(root, drawing)
 
-def collect_all_attribute(usedstyles, attribute):
-    for element in root.findall(".//*[@" + attribute + "]"):
-        usedstyles.add(element.get(attribute))
+def remove_unused_by_name(root, used, elements, ns, local, label):
+    """Generic removal for elements identified by a non-style:name attribute."""
+    for el in elements:
+        n = el.get(qn(ns, local))
+        if n not in used:
+            log("removing unused %s %s" % (label, n))
+            _remove_from_parent(root, el)
 
-def collect_all_attribute_list(usedstyles, attribute):
-    for element in root.findall(".//*[@" + attribute + "]"):
-        for style in element.get(attribute).split(" "):
-            usedstyles.add(style)
+# ---------------------------------------------------------------------------
+# Paragraph style discovery
+# ---------------------------------------------------------------------------
+
+def get_used_p_styles(root):
+    elementnames = [
+        ".//{%s}p" % NS_TEXT,
+        ".//{%s}h" % NS_TEXT,
+        ".//{%s}alphabetical-index-entry-template" % NS_TEXT,
+        ".//{%s}bibliography-entry-template" % NS_TEXT,
+        ".//{%s}illustration-index-entry-template" % NS_TEXT,
+        ".//{%s}index-source-style" % NS_TEXT,
+        ".//{%s}object-index-entry-template" % NS_TEXT,
+        ".//{%s}table-index-entry-template" % NS_TEXT,
+        ".//{%s}table-of-content-entry-template" % NS_TEXT,
+        ".//{%s}user-index-entry-template" % NS_TEXT,
+    ]
+
+    ps = sum([root.findall(e) for e in elementnames], [])
+    usedpstyles = set()
+    usedcondstyles = set()
+    for p in ps:
+        usedpstyles.add(p.get(qn(NS_TEXT, "style-name")))
+        cond = p.get(qn(NS_TEXT, "cond-style-name"))
+        if cond:
+            usedcondstyles.add(cond)
+        cls = p.get(qn(NS_TEXT, "class-names"))
+        if cls:
+            for style in cls.split(" "):
+                usedpstyles.add(style)
+
+    for shape in root.findall(".//*[@%s]" % qn(NS_DRAW, "text-style-name")):
+        usedpstyles.add(shape.get(qn(NS_DRAW, "text-style-name")))
+    for tt in root.findall(".//*[@%s]" % qn(NS_TABLE, "paragraph-style-name")):
+        usedpstyles.add(tt.get(qn(NS_TABLE, "paragraph-style-name")))
+    for pg in root.findall(".//*[@%s]" % qn(NS_STYLE, "register-truth-ref-style-name")):
+        usedpstyles.add(pg.get(qn(NS_STYLE, "register-truth-ref-style-name")))
+    for fm in root.findall(".//*[@%s]" % qn(NS_FORM, "text-style-name")):
+        usedpstyles.add(fm.get(qn(NS_FORM, "text-style-name")))
+    # chart paragraph styles
+    for ce in root.findall(".//*[@%s]" % qn(NS_CHART, "style-name")):
+        usedpstyles.add(ce.get(qn(NS_CHART, "style-name")))
+
+    # conditional style maps
+    for condstyle in usedcondstyles:
+        xpath = (".//{{%s}}style[@{{%s}}family='paragraph'][@{{%s}}name='%s']/{{%s}}map"
+                 % (NS_STYLE, NS_STYLE, NS_STYLE, condstyle, NS_STYLE))
+        for map_ in root.findall(xpath):
+            v = map_.get(qn(NS_STYLE, "apply-style-name"))
+            if v:
+                usedpstyles.add(v)
+
+    for nc in root.findall(".//*[@%s]" % qn(NS_TEXT, "default-style-name")):
+        usedpstyles.add(nc.get(qn(NS_TEXT, "default-style-name")))
+
+    usedpstyles.discard(None)
+    return usedpstyles
+
+# ---------------------------------------------------------------------------
+# Main cleanup routine
+# ---------------------------------------------------------------------------
 
 def remove_unused(root):
-    # 1) find all elements that may reference page styles - this gets rid of some paragraphs
+
+    # ------------------------------------------------------------------
+    # 1) Master pages
+    # ------------------------------------------------------------------
     usedpstyles = get_used_p_styles(root)
-    log(usedpstyles)
     usedtstyles = set()
-    tables = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:table:1.0}table")
-    log(tables)
+    tables = root.findall(".//{%s}table" % NS_TABLE)
     for table in tables:
-        usedtstyles.add(table.get("{urn:oasis:names:tc:opendocument:xmlns:table:1.0}style-name"))
-    pstyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='paragraph']")
-    tstyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='table']")
-    usedmasterpages = {"Standard"} # assume this is the default on page 1
-    # only automatic styles may have page breaks in LO, so no need to chase parents or nexts
+        sn = table.get(qn(NS_TABLE, "style-name"))
+        if sn:
+            usedtstyles.add(sn)
+
+    pstyles = root.findall(".//{%s}style[@{%s}family='paragraph']" % (NS_STYLE, NS_STYLE))
+    tstyles  = root.findall(".//{%s}style[@{%s}family='table']" % (NS_STYLE, NS_STYLE))
+
+    usedmasterpages = {"Standard"}
     for pstyle in pstyles:
-        log(pstyle.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name"))
-        if pstyle.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name") in usedpstyles:
-            usedmasterpages.add(pstyle.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}master-page-name"))
+        if pstyle.get(qn(NS_STYLE, "name")) in usedpstyles:
+            mpn = pstyle.get(qn(NS_STYLE, "master-page-name"))
+            if mpn:
+                usedmasterpages.add(mpn)
     for tstyle in tstyles:
-        if tstyle.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name") in usedtstyles:
-            usedmasterpages.add(tstyle.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}master-page-name"))
-    for node in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:text:1.0}master-page-name]"):
-        usedmasterpages.add(node.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}master-page-name"))
-    for node in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}master-page-name]"):
-        usedmasterpages.add(node.get("{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}master-page-name"))
-    log(usedmasterpages)
-    # iterate parent/next until no more masterpage is added
+        if tstyle.get(qn(NS_STYLE, "name")) in usedtstyles:
+            mpn = tstyle.get(qn(NS_STYLE, "master-page-name"))
+            if mpn:
+                usedmasterpages.add(mpn)
+    for node in root.findall(".//*[@%s]" % qn(NS_TEXT, "master-page-name")):
+        usedmasterpages.add(node.get(qn(NS_TEXT, "master-page-name")))
+    for node in root.findall(".//*[@%s]" % qn(NS_DRAW, "master-page-name")):
+        usedmasterpages.add(node.get(qn(NS_DRAW, "master-page-name")))
+    usedmasterpages.discard(None)
+
     size = -1
     while size != len(usedmasterpages):
         size = len(usedmasterpages)
-        for mp in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}master-page"):
-            if mp.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name") in usedmasterpages:
-                if mp.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}parent-style-name"):
-                    usedmasterpages.add(mp.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}parent-style-name"))
-                if mp.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}next-style-name"):
-                    usedmasterpages.add(mp.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}next-style-name"))
-    # remove unused masterpages
-    for mp in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}master-page"):
-        if mp.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name") not in usedmasterpages:
-            log("removing unused master page " + mp.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name"))
-            # there is no way to get the parent element???
-            root.find(".//{urn:oasis:names:tc:opendocument:xmlns:office:1.0}master-styles").remove(mp)
+        for mp in root.findall(".//{%s}master-page" % NS_STYLE):
+            if mp.get(qn(NS_STYLE, "name")) in usedmasterpages:
+                p = mp.get(qn(NS_STYLE, "parent-style-name"))
+                if p:
+                    usedmasterpages.add(p)
+                n = mp.get(qn(NS_STYLE, "next-style-name"))
+                if n:
+                    usedmasterpages.add(n)
 
-    # 2) remove unused paragraph styles
+    ms_container = root.find(".//{%s}master-styles" % NS_OFFICE)
+    if ms_container is not None:
+        for mp in list(ms_container):
+            if mp.get(qn(NS_STYLE, "name")) not in usedmasterpages:
+                log("removing unused master page %s" % mp.get(qn(NS_STYLE, "name")))
+                ms_container.remove(mp)
+
+    # ------------------------------------------------------------------
+    # 2) Paragraph styles
+    # ------------------------------------------------------------------
     usedpstyles = get_used_p_styles(root)
-
     add_parent_styles(usedpstyles, pstyles)
     remove_unused_styles(root, usedpstyles, pstyles, "paragraph style")
 
-    # 3) unused list styles - keep referenced from still used paragraph styles
+    # ------------------------------------------------------------------
+    # 3) List styles
+    # ------------------------------------------------------------------
     usedliststyles = set()
-    for style in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}list-style-name]"):
-        usedliststyles.add(style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}list-style-name"))
-    for list_ in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}list[@{urn:oasis:names:tc:opendocument:xmlns:text:1.0}style-name]"):
-        usedliststyles.add(list_.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}style-name"))
-    for listitem in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}list-item[@{urn:oasis:names:tc:opendocument:xmlns:text:1.0}style-override]"):
-        usedliststyles.add(listitem.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}style-override"))
-    for numpara in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}numbered-paragraph[@{urn:oasis:names:tc:opendocument:xmlns:text:1.0}style-name]"):
-        usedliststyles.add(list_.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}style-name"))
-    # ignore ones that are children of style:graphic-properties, those must be handled as the containing style
-    # there is no inheritance for these
-    liststyles = root.findall("./*/{urn:oasis:names:tc:opendocument:xmlns:text:1.0}list-style")
+    for style in root.findall(".//*[@%s]" % qn(NS_STYLE, "list-style-name")):
+        usedliststyles.add(style.get(qn(NS_STYLE, "list-style-name")))
+    for list_ in root.findall(".//{%s}list[@{%s}style-name]" % (NS_TEXT, NS_TEXT)):
+        usedliststyles.add(list_.get(qn(NS_TEXT, "style-name")))
+    for li in root.findall(".//{%s}list-item[@{%s}style-override]" % (NS_TEXT, NS_TEXT)):
+        usedliststyles.add(li.get(qn(NS_TEXT, "style-override")))
+    for np in root.findall(".//{%s}numbered-paragraph[@{%s}style-name]" % (NS_TEXT, NS_TEXT)):
+        usedliststyles.add(np.get(qn(NS_TEXT, "style-name")))
+    usedliststyles.discard(None)
+    liststyles = root.findall("./*/{%s}list-style" % NS_TEXT)
     remove_unused_styles(root, usedliststyles, liststyles, "list style")
 
-    # 4) unused text styles
-    usedtextstyles = set()
+    # ------------------------------------------------------------------
+    # 4) Text styles
+    # ------------------------------------------------------------------
+    usedtextstyles   = set()
     usedsectionstyles = set()
-    usedrubystyles = set()
+    usedrubystyles    = set()
 
     sections = {
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}alphabetical-index",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}bibliography",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}illustration-index",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-title",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}object-index",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}section",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}table-of-content",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}table-index",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}user-index",
+        qn(NS_TEXT, "alphabetical-index"),
+        qn(NS_TEXT, "bibliography"),
+        qn(NS_TEXT, "illustration-index"),
+        qn(NS_TEXT, "index-title"),
+        qn(NS_TEXT, "object-index"),
+        qn(NS_TEXT, "section"),
+        qn(NS_TEXT, "table-of-content"),
+        qn(NS_TEXT, "table-index"),
+        qn(NS_TEXT, "user-index"),
     }
     texts = {
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}a",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-entry-bibliography",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-entry-chapter",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-entry-link-end",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-entry-link-start",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-entry-page-number",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-entry-span",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-entry-tab-stop",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-entry-text",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}index-title-template",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}linenumbering-configuration",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}list-level-style-number",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}list-level-style-bullet",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}outline-level-style",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}ruby-text",
-        "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}span",
+        qn(NS_TEXT, "a"),
+        qn(NS_TEXT, "index-entry-bibliography"),
+        qn(NS_TEXT, "index-entry-chapter"),
+        qn(NS_TEXT, "index-entry-link-end"),
+        qn(NS_TEXT, "index-entry-link-start"),
+        qn(NS_TEXT, "index-entry-page-number"),
+        qn(NS_TEXT, "index-entry-span"),
+        qn(NS_TEXT, "index-entry-tab-stop"),
+        qn(NS_TEXT, "index-entry-text"),
+        qn(NS_TEXT, "index-title-template"),
+        qn(NS_TEXT, "linenumbering-configuration"),
+        qn(NS_TEXT, "list-level-style-number"),
+        qn(NS_TEXT, "list-level-style-bullet"),
+        qn(NS_TEXT, "outline-level-style"),
+        qn(NS_TEXT, "ruby-text"),
+        qn(NS_TEXT, "span"),
     }
-    for element in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:text:1.0}style-name]"):
-        style = element.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}style-name")
-        if element.tag == "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}ruby":
+    for element in root.findall(".//*[@%s]" % qn(NS_TEXT, "style-name")):
+        style = element.get(qn(NS_TEXT, "style-name"))
+        if element.tag == qn(NS_TEXT, "ruby"):
             usedrubystyles.add(style)
         elif element.tag in sections:
             usedsectionstyles.add(style)
         elif element.tag in texts:
             usedtextstyles.add(style)
 
-    collect_all_attribute(usedtextstyles, "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style-name")
-    collect_all_attribute(usedtextstyles, "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}leader-text-style")
-    collect_all_attribute(usedtextstyles, "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}text-line-through-text-style")
-    collect_all_attribute(usedtextstyles, "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}visited-style-name")
-    collect_all_attribute(usedtextstyles, "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}main-entry-style-name")
-    collect_all_attribute(usedtextstyles, "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}citation-style-name")
-    collect_all_attribute(usedtextstyles, "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}citation-body-style-name")
-    for span in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}span[@{urn:oasis:names:tc:opendocument:xmlns:text:1.0}class-names]"):
-        for style in span.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}class-names").split(" "):
-            usedtextstyles.add(style)
-    textstyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='text']")
+    collect_all_attribute(root, usedtextstyles, qn(NS_STYLE, "style-name"))
+    collect_all_attribute(root, usedtextstyles, qn(NS_STYLE, "leader-text-style"))
+    collect_all_attribute(root, usedtextstyles, qn(NS_STYLE, "text-line-through-text-style"))
+    collect_all_attribute(root, usedtextstyles, qn(NS_TEXT, "visited-style-name"))
+    collect_all_attribute(root, usedtextstyles, qn(NS_TEXT, "main-entry-style-name"))
+    collect_all_attribute(root, usedtextstyles, qn(NS_TEXT, "citation-style-name"))
+    collect_all_attribute(root, usedtextstyles, qn(NS_TEXT, "citation-body-style-name"))
+    for span in root.findall(".//{%s}span[@{%s}class-names]" % (NS_TEXT, NS_TEXT)):
+        for style in span.get(qn(NS_TEXT, "class-names")).split(" "):
+            if style:
+                usedtextstyles.add(style)
+    usedtextstyles.discard(None)
+
+    textstyles = root.findall(".//{%s}style[@{%s}family='text']" % (NS_STYLE, NS_STYLE))
     add_parent_styles(usedtextstyles, textstyles)
     remove_unused_styles(root, usedtextstyles, textstyles, "text style")
 
-    # 5) unused ruby styles - can't have parents?
-    rubystyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='ruby']")
+    # ------------------------------------------------------------------
+    # 5) Ruby styles
+    # ------------------------------------------------------------------
+    rubystyles = root.findall(".//{%s}style[@{%s}family='ruby']" % (NS_STYLE, NS_STYLE))
+    usedrubystyles.discard(None)
     remove_unused_styles(root, usedrubystyles, rubystyles, "ruby style")
 
-    # 6) unused section styles - can't have parents?
-    sectionstyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='section']")
+    # ------------------------------------------------------------------
+    # 6) Section styles
+    # ------------------------------------------------------------------
+    sectionstyles = root.findall(".//{%s}style[@{%s}family='section']" % (NS_STYLE, NS_STYLE))
+    usedsectionstyles.discard(None)
     remove_unused_styles(root, usedsectionstyles, sectionstyles, "section style")
 
-    # 7) presentation styles
+    # ------------------------------------------------------------------
+    # 7) Presentation styles
+    # ------------------------------------------------------------------
     usedpresentationstyles = set()
-
-    collect_all_attribute(usedpresentationstyles, "{urn:oasis:names:tc:opendocument:xmlns:presentation:1.0}style-name")
-    collect_all_attribute_list(usedpresentationstyles, "{urn:oasis:names:tc:opendocument:xmlns:presentation:1.0}class-names")
-
-    presentationstyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='presentation']")
+    collect_all_attribute(root, usedpresentationstyles, qn(NS_PRES, "style-name"))
+    collect_all_attribute_list(root, usedpresentationstyles, qn(NS_PRES, "class-names"))
+    usedpresentationstyles.discard(None)
+    presentationstyles = root.findall(".//{%s}style[@{%s}family='presentation']" % (NS_STYLE, NS_STYLE))
     add_parent_styles(usedpresentationstyles, presentationstyles)
     remove_unused_styles(root, usedpresentationstyles, presentationstyles, "presentation style")
 
-    # 8) graphic styles
+    # ------------------------------------------------------------------
+    # 8) Graphic styles
+    # ------------------------------------------------------------------
     pages = {
-        "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}page",
-        "{urn:oasis:names:tc:opendocument:xmlns:presentation:1.0}notes",
-        "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}handout-master",
-        "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}master-page",
+        qn(NS_DRAW, "page"),
+        qn(NS_PRES, "notes"),
+        qn(NS_STYLE, "handout-master"),
+        qn(NS_STYLE, "master-page"),
     }
-    usedgraphicstyles = set()
+    usedgraphicstyles     = set()
     useddrawingpagestyles = set()
-    for element in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}style-name]"):
-        style = element.get("{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}style-name")
+    for element in root.findall(".//*[@%s]" % qn(NS_DRAW, "style-name")):
+        style = element.get(qn(NS_DRAW, "style-name"))
         if element.tag in pages:
             useddrawingpagestyles.add(style)
         else:
             usedgraphicstyles.add(style)
-    collect_all_attribute_list(usedgraphicstyles, "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}class-names")
+    collect_all_attribute_list(root, usedgraphicstyles, qn(NS_DRAW, "class-names"))
+    usedgraphicstyles.discard(None)
+    useddrawingpagestyles.discard(None)
 
-    graphicstyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='graphic']")
+    graphicstyles = root.findall(".//{%s}style[@{%s}family='graphic']" % (NS_STYLE, NS_STYLE))
     add_parent_styles(usedgraphicstyles, graphicstyles)
     remove_unused_styles(root, usedgraphicstyles, graphicstyles, "graphic style")
 
-    # 9) drawing-page styles
-    drawingpagestyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='drawing-page']")
+    # ------------------------------------------------------------------
+    # 9) Drawing-page styles
+    # ------------------------------------------------------------------
+    drawingpagestyles = root.findall(".//{%s}style[@{%s}family='drawing-page']" % (NS_STYLE, NS_STYLE))
     add_parent_styles(useddrawingpagestyles, drawingpagestyles)
     remove_unused_styles(root, useddrawingpagestyles, drawingpagestyles, "drawing-page style")
 
-    # 10) page layouts
+    # ------------------------------------------------------------------
+    # 10) Page layouts
+    # ------------------------------------------------------------------
     usedpagelayouts = set()
-    collect_all_attribute(usedpagelayouts, "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}page-layout-name")
-    pagelayouts = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}page-layout")
+    collect_all_attribute(root, usedpagelayouts, qn(NS_STYLE, "page-layout-name"))
+    usedpagelayouts.discard(None)
+    pagelayouts = root.findall(".//{%s}page-layout" % NS_STYLE)
     remove_unused_styles(root, usedpagelayouts, pagelayouts, "page layout")
 
-    # 11) presentation page layouts
+    # ------------------------------------------------------------------
+    # 11) Presentation page layouts
+    # ------------------------------------------------------------------
     usedpresentationpagelayouts = set()
-    collect_all_attribute(usedpresentationpagelayouts, "{urn:oasis:names:tc:opendocument:xmlns:presentation:1.0}presentation-page-layout-name")
-    presentationpagelayouts = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}presentation-page-layout")
-    remove_unused_styles(root, usedpresentationpagelayouts, presentationpagelayouts, "presentation page layout")
+    collect_all_attribute(root, usedpresentationpagelayouts,
+                          qn(NS_PRES, "presentation-page-layout-name"))
+    usedpresentationpagelayouts.discard(None)
+    presentationpagelayouts = root.findall(".//{%s}presentation-page-layout" % NS_STYLE)
+    remove_unused_styles(root, usedpresentationpagelayouts,
+                         presentationpagelayouts, "presentation page layout")
 
-    # 12) table (column/row/cell) styles
-    usedtablestyles = set()
+    # ------------------------------------------------------------------
+    # 12) Table / column / row / cell styles  (fixed variable name bug)
+    # ------------------------------------------------------------------
+    usedtablestyles       = set()
     usedtablecolumnstyles = set()
-    usedtablerowstyles = set()
-    usedtablecellstyles = set()
+    usedtablerowstyles    = set()
+    usedtablecellstyles   = set()
 
-    tables = {
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}table",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}table:background",
+    table_tags = {
+        qn(NS_TABLE, "table"),
+        qn(NS_TABLE, "table:background"),
     }
-    tablecells = {
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}covered-table-cell",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}table-cell",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}body",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}even-columns",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}even-rows",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}first-column",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}first-row",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}last-column",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}last-row",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}odd-columns",
-        "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}odd-rows",
+    tablecell_tags = {
+        qn(NS_TABLE, "covered-table-cell"),
+        qn(NS_TABLE, "table-cell"),
+        qn(NS_TABLE, "body"),
+        qn(NS_TABLE, "even-columns"),
+        qn(NS_TABLE, "even-rows"),
+        qn(NS_TABLE, "first-column"),
+        qn(NS_TABLE, "first-row"),
+        qn(NS_TABLE, "last-column"),
+        qn(NS_TABLE, "last-row"),
+        qn(NS_TABLE, "odd-columns"),
+        qn(NS_TABLE, "odd-rows"),
     }
-    for element in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:table:1.0}style-name]"):
-        style = element.get("{urn:oasis:names:tc:opendocument:xmlns:table:1.0}style-name")
-        if element.tag == "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}table-column":
+    for element in root.findall(".//*[@%s]" % qn(NS_TABLE, "style-name")):
+        style = element.get(qn(NS_TABLE, "style-name"))
+        if element.tag == qn(NS_TABLE, "table-column"):
             usedtablecolumnstyles.add(style)
-        elif element.tag == "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}table-row":
+        elif element.tag == qn(NS_TABLE, "table-row"):
             usedtablerowstyles.add(style)
-        elif element.tag in tables:
+        elif element.tag in table_tags:
             usedtablestyles.add(style)
-        elif element.tag in tablecells:
+        elif element.tag in tablecell_tags:
             usedtablecellstyles.add(style)
 
-    for element in root.findall(".//*[@{urn:oasis:names:tc:opendocument:xmlns:database:1.0}style-name]"):
-        style = element.get("{urn:oasis:names:tc:opendocument:xmlns:database:1.0}style-name")
-        if element.tag == "{urn:oasis:names:tc:opendocument:xmlns:database:1.0}column":
+    for element in root.findall(".//*[@%s]" % qn(NS_DB, "style-name")):
+        style = element.get(qn(NS_DB, "style-name"))
+        if element.tag == qn(NS_DB, "column"):
             usedtablecolumnstyles.add(style)
-        else: # db:query db:table-representation
+        else:
             usedtablestyles.add(style)
 
-    collect_all_attribute(usedtablerowstyles, "{urn:oasis:names:tc:opendocument:xmlns:database:1.0}default-row-style-name")
-    collect_all_attribute(usedtablecellstyles, "{urn:oasis:names:tc:opendocument:xmlns:database:1.0}default-cell-style-name")
-    collect_all_attribute(usedtablecellstyles, "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}default-cell-style-name")
+    collect_all_attribute(root, usedtablerowstyles,  qn(NS_DB,    "default-row-style-name"))
+    collect_all_attribute(root, usedtablecellstyles, qn(NS_DB,    "default-cell-style-name"))
+    collect_all_attribute(root, usedtablecellstyles, qn(NS_TABLE, "default-cell-style-name"))
 
-    tablecolumstyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='table-column']")
-    tablerowstyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='table-row']")
-    tablecellstyles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style[@{urn:oasis:names:tc:opendocument:xmlns:style:1.0}family='table-cell']")
-    add_parent_styles(usedtablestyles, tstyles)
-    add_parent_styles(usedtablecolumnstyles, tablecolumstyles)
-    add_parent_styles(usedtablerowstyles, tablerowstyles)
-    add_parent_styles(usedtablecellstyles, tablecellstyles)
-    remove_unused_styles(root, usedtstyles, tstyles, "table style")
-    remove_unused_styles(root, usedtablecolumnstyles, tablecolumstyles, "table column style")
-    remove_unused_styles(root, usedtablerowstyles, tablerowstyles, "table row style")
-    remove_unused_styles(root, usedtablecellstyles, tablecellstyles, "table cell style")
+    for s in [usedtablestyles, usedtablecolumnstyles, usedtablerowstyles, usedtablecellstyles]:
+        s.discard(None)
 
-    # 13) gradients
+    tablecolumnstyles = root.findall(".//{%s}style[@{%s}family='table-column']" % (NS_STYLE, NS_STYLE))
+    tablerowstyles    = root.findall(".//{%s}style[@{%s}family='table-row']"    % (NS_STYLE, NS_STYLE))
+    tablecellstyles   = root.findall(".//{%s}style[@{%s}family='table-cell']"   % (NS_STYLE, NS_STYLE))
+
+    add_parent_styles(usedtablestyles,       tstyles)
+    add_parent_styles(usedtablecolumnstyles, tablecolumnstyles)
+    add_parent_styles(usedtablerowstyles,    tablerowstyles)
+    add_parent_styles(usedtablecellstyles,   tablecellstyles)
+
+    remove_unused_styles(root, usedtablestyles,       tstyles,           "table style")
+    remove_unused_styles(root, usedtablecolumnstyles, tablecolumnstyles, "table column style")
+    remove_unused_styles(root, usedtablerowstyles,    tablerowstyles,    "table row style")
+    remove_unused_styles(root, usedtablecellstyles,   tablecellstyles,   "table cell style")
+
+    # ------------------------------------------------------------------
+    # 13) Chart styles
+    # ------------------------------------------------------------------
+    usedchartstyles = set()
+    collect_all_attribute(root, usedchartstyles, qn(NS_CHART, "style-name"))
+    usedchartstyles.discard(None)
+    chartstyles = root.findall(".//{%s}style[@{%s}family='chart']" % (NS_STYLE, NS_STYLE))
+    add_parent_styles(usedchartstyles, chartstyles)
+    remove_unused_styles(root, usedchartstyles, chartstyles, "chart style")
+
+    # ------------------------------------------------------------------
+    # 14) Data / number styles  (number:*, currency:*, date:*, time:*, etc.)
+    # ------------------------------------------------------------------
+    useddatastyles = set()
+    collect_all_attribute(root, useddatastyles, qn(NS_STYLE, "data-style-name"))
+    collect_all_attribute(root, useddatastyles, qn(NS_STYLE, "percentage-data-style-name"))
+    # number styles referenced from cell styles via style:data-style-name
+    collect_all_attribute(root, useddatastyles, qn(NS_NUMBER, "data-style-name"))
+    useddatastyles.discard(None)
+
+    # All number-namespace top-level style elements
+    number_style_tags = [
+        "{%s}number-style"   % NS_NUMBER,
+        "{%s}currency-style" % NS_NUMBER,
+        "{%s}percentage-style" % NS_NUMBER,
+        "{%s}date-style"     % NS_NUMBER,
+        "{%s}time-style"     % NS_NUMBER,
+        "{%s}boolean-style"  % NS_NUMBER,
+        "{%s}text-style"     % NS_NUMBER,
+    ]
+    datastyles = []
+    for tag in number_style_tags:
+        datastyles.extend(root.findall(".//" + tag))
+    # number styles use style:name attribute
+    remove_unused_by_name(root, useddatastyles, datastyles, NS_STYLE, "name", "data style")
+
+    # ------------------------------------------------------------------
+    # 15) Gradients
+    # ------------------------------------------------------------------
     usedgradients = set()
-    collect_all_attribute(usedgradients, "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}fill-gradient-name")
-    collect_all_attribute(usedgradients, "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}opacity-name")
-    gradients = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}gradient")
+    collect_all_attribute(root, usedgradients, qn(NS_DRAW, "fill-gradient-name"))
+    collect_all_attribute(root, usedgradients, qn(NS_DRAW, "opacity-name"))
+    usedgradients.discard(None)
+    gradients = root.findall(".//{%s}gradient" % NS_DRAW)
     remove_unused_drawings(root, usedgradients, gradients, "gradient")
 
-    # 14) hatchs
+    # ------------------------------------------------------------------
+    # 16) Hatches
+    # ------------------------------------------------------------------
     usedhatchs = set()
-    collect_all_attribute(usedhatchs, "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}fill-hatch-name")
-    hatchs = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}hatch")
+    collect_all_attribute(root, usedhatchs, qn(NS_DRAW, "fill-hatch-name"))
+    usedhatchs.discard(None)
+    hatchs = root.findall(".//{%s}hatch" % NS_DRAW)
     remove_unused_drawings(root, usedhatchs, hatchs, "hatch")
 
-    # 15) bitmaps
+    # ------------------------------------------------------------------
+    # 17) Bitmaps (fill images)
+    # ------------------------------------------------------------------
     usedbitmaps = set()
-    collect_all_attribute(usedbitmaps, "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}fill-image-name")
-    bitmaps = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}bitmap")
-    remove_unused_drawings(root, usedbitmaps, bitmaps, "bitmap")
+    collect_all_attribute(root, usedbitmaps, qn(NS_DRAW, "fill-image-name"))
+    usedbitmaps.discard(None)
+    bitmaps = root.findall(".//{%s}fill-image" % NS_DRAW)  # correct tag is draw:fill-image
+    remove_unused_drawings(root, usedbitmaps, bitmaps, "fill-image")
+    # legacy draw:bitmap elements
+    bitmaps_legacy = root.findall(".//{%s}bitmap" % NS_DRAW)
+    remove_unused_drawings(root, usedbitmaps, bitmaps_legacy, "bitmap")
 
-    # 16) markers
+    # ------------------------------------------------------------------
+    # 18) Markers
+    # ------------------------------------------------------------------
     usedmarkers = set()
-    collect_all_attribute(usedmarkers, "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}marker-start")
-    collect_all_attribute(usedmarkers, "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}marker-end")
-    markers = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}marker")
+    collect_all_attribute(root, usedmarkers, qn(NS_DRAW, "marker-start"))
+    collect_all_attribute(root, usedmarkers, qn(NS_DRAW, "marker-end"))
+    usedmarkers.discard(None)
+    markers = root.findall(".//{%s}marker" % NS_DRAW)
     remove_unused_drawings(root, usedmarkers, markers, "marker")
 
-    # 17) stroke-dash
+    # ------------------------------------------------------------------
+    # 19) Stroke dashes
+    # ------------------------------------------------------------------
     usedstrokedashs = set()
-    collect_all_attribute(usedstrokedashs, "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}stroke-dash")
-    collect_all_attribute_list(usedstrokedashs, "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}stroke-dash-names")
-    strokedashs = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}stroke-dash")
+    collect_all_attribute(root, usedstrokedashs, qn(NS_DRAW, "stroke-dash"))
+    collect_all_attribute_list(root, usedstrokedashs, qn(NS_DRAW, "stroke-dash-names"))
+    usedstrokedashs.discard(None)
+    strokedashs = root.findall(".//{%s}stroke-dash" % NS_DRAW)
     remove_unused_drawings(root, usedstrokedashs, strokedashs, "stroke-dash")
 
-    # TODO 3 other styles
+    # ------------------------------------------------------------------
+    # 20) Transparency / opacity gradients  (draw:opacity elements)
+    # ------------------------------------------------------------------
+    usedopacity = set()
+    collect_all_attribute(root, usedopacity, qn(NS_DRAW, "opacity-name"))
+    usedopacity.discard(None)
+    opacities = root.findall(".//{%s}opacity" % NS_DRAW)
+    remove_unused_drawings(root, usedopacity, opacities, "opacity")
 
-    # 13) unused font-face-decls
+    # ------------------------------------------------------------------
+    # 21) Text boxes / callout shapes (draw:text-box): no cleanup needed,
+    #     but draw:caption-style-name references graphic styles (already done).
+
+    # ------------------------------------------------------------------
+    # 22) Cell range styles  (table:database-range, table:data-pilot-table)
+    # ------------------------------------------------------------------
+    useddbrangestyles = set()
+    collect_all_attribute(root, useddbrangestyles, qn(NS_TABLE, "database-name"))
+    # Nothing to remove for database-range by name (they are content, not styles).
+
+    # ------------------------------------------------------------------
+    # 23) Unused font-face declarations
+    # ------------------------------------------------------------------
     usedfonts = set()
-    collect_all_attribute(usedfonts, "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}font-name")
-    collect_all_attribute(usedfonts, "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}font-name-asian")
-    collect_all_attribute(usedfonts, "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}font-name-complex")
-    fonts = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}font-face")
-    for font in fonts:
-        if font.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name") not in usedfonts:
-            log("removing unused font-face " + font.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name"))
-            root.find(".//{urn:oasis:names:tc:opendocument:xmlns:office:1.0}font-face-decls").remove(font)
+    collect_all_attribute(root, usedfonts, qn(NS_STYLE, "font-name"))
+    collect_all_attribute(root, usedfonts, qn(NS_STYLE, "font-name-asian"))
+    collect_all_attribute(root, usedfonts, qn(NS_STYLE, "font-name-complex"))
+    usedfonts.discard(None)
 
-    # 14) remove rsid attributes
-    styles = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}style")
-    for style in styles:
-        tp = style.find(".//{urn:oasis:names:tc:opendocument:xmlns:style:1.0}text-properties")
+    ffd_container = root.find(".//{%s}font-face-decls" % NS_OFFICE)
+    if ffd_container is not None:
+        for font in list(ffd_container):
+            fname = font.get(qn(NS_STYLE, "name"))
+            if fname not in usedfonts:
+                log("removing unused font-face %s" % fname)
+                ffd_container.remove(font)
+
+    # ------------------------------------------------------------------
+    # 24) Remove rsid / paragraph-rsid tracking attributes
+    # ------------------------------------------------------------------
+    for style in root.findall(".//{%s}style" % NS_STYLE):
+        tp = style.find(".//{%s}text-properties" % NS_STYLE)
         if tp is not None:
-            if "{http://openoffice.org/2009/office}rsid" in tp.attrib:
-                log("removing rsid from " + style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name"))
-                del tp.attrib["{http://openoffice.org/2009/office}rsid"]
-            if "{http://openoffice.org/2009/office}paragraph-rsid" in tp.attrib:
-                log("removing paragraph-rsid from " + style.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name"))
-                del tp.attrib["{http://openoffice.org/2009/office}paragraph-rsid"]
+            for attr in [qn(NS_OOO, "rsid"), qn(NS_OOO, "paragraph-rsid")]:
+                if attr in tp.attrib:
+                    log("removing %s from %s" % (attr, style.get(qn(NS_STYLE, "name"))))
+                    del tp.attrib[attr]
 
-    # 15) unused user field decls
+    # Also strip rsid from paragraph and span elements in the document body
+    for el in root.findall(".//*[@%s]" % qn(NS_OOO, "rsid")):
+        del el.attrib[qn(NS_OOO, "rsid")]
+    for el in root.findall(".//*[@%s]" % qn(NS_OOO, "paragraph-rsid")):
+        del el.attrib[qn(NS_OOO, "paragraph-rsid")]
+
+    # ------------------------------------------------------------------
+    # 25) Unused user field declarations
+    # ------------------------------------------------------------------
     useduserfields = set()
-    for field in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}user-field-get"):
-        useduserfields.add(field.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}name"))
-    for field in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}user-field-input"):
-        useduserfields.add(field.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}name"))
-    for field in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}user-field-decl"):
-        if field.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}name") not in useduserfields:
-            log("removing unused user-field-decl " + field.get("{urn:oasis:names:tc:opendocument:xmlns:text:1.0}name"))
-            root.find(".//{urn:oasis:names:tc:opendocument:xmlns:text:1.0}user-field-decls").remove(field)
+    for field in root.findall(".//{%s}user-field-get" % NS_TEXT):
+        useduserfields.add(field.get(qn(NS_TEXT, "name")))
+    for field in root.findall(".//{%s}user-field-input" % NS_TEXT):
+        useduserfields.add(field.get(qn(NS_TEXT, "name")))
+    useduserfields.discard(None)
 
-    # remove office:settings
-    settings = root.find(".//{urn:oasis:names:tc:opendocument:xmlns:office:1.0}settings")
+    ufd_container = root.find(".//{%s}user-field-decls" % NS_TEXT)
+    if ufd_container is not None:
+        for field in list(ufd_container):
+            fname = field.get(qn(NS_TEXT, "name"))
+            if fname not in useduserfields:
+                log("removing unused user-field-decl %s" % fname)
+                ufd_container.remove(field)
+
+    # ------------------------------------------------------------------
+    # 26) Unused variable declarations  (text:variable-decl)
+    # ------------------------------------------------------------------
+    usedvariables = set()
+    for el in root.findall(".//{%s}variable-set" % NS_TEXT):
+        usedvariables.add(el.get(qn(NS_TEXT, "name")))
+    for el in root.findall(".//{%s}variable-get" % NS_TEXT):
+        usedvariables.add(el.get(qn(NS_TEXT, "name")))
+    for el in root.findall(".//{%s}variable-input" % NS_TEXT):
+        usedvariables.add(el.get(qn(NS_TEXT, "name")))
+    usedvariables.discard(None)
+
+    vd_container = root.find(".//{%s}variable-decls" % NS_TEXT)
+    if vd_container is not None:
+        for decl in list(vd_container):
+            dname = decl.get(qn(NS_TEXT, "name"))
+            if dname not in usedvariables:
+                log("removing unused variable-decl %s" % dname)
+                vd_container.remove(decl)
+
+    # ------------------------------------------------------------------
+    # 27) Unused sequence declarations  (text:sequence-decl)
+    # ------------------------------------------------------------------
+    usedsequences = set()
+    for el in root.findall(".//{%s}sequence" % NS_TEXT):
+        usedsequences.add(el.get(qn(NS_TEXT, "name")))
+    usedsequences.discard(None)
+
+    sd_container = root.find(".//{%s}sequence-decls" % NS_TEXT)
+    if sd_container is not None:
+        for decl in list(sd_container):
+            dname = decl.get(qn(NS_TEXT, "name"))
+            if dname not in usedsequences:
+                log("removing unused sequence-decl %s" % dname)
+                sd_container.remove(decl)
+
+    # ------------------------------------------------------------------
+    # 28) Remove office:settings  (view state, cursor position, etc.)
+    # ------------------------------------------------------------------
+    settings = root.find(".//{%s}settings" % NS_OFFICE)
     if settings is not None:
-        root.remove(settings)
+        settings.getparent().remove(settings)
 
-    # scripts are almost never needed
-    scripts = root.find(".//{urn:oasis:names:tc:opendocument:xmlns:office:1.0}scripts")
+    # ------------------------------------------------------------------
+    # 29) Remove office:scripts  (almost never needed)
+    # ------------------------------------------------------------------
+    scripts = root.find(".//{%s}scripts" % NS_OFFICE)
     if scripts is not None:
-        root.remove(scripts)
+        scripts.getparent().remove(scripts)
 
-    # remove theme
-    theme = root.find(".//{urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0}theme")
+    # ------------------------------------------------------------------
+    # 30) Remove loext:theme
+    # ------------------------------------------------------------------
+    theme = root.find(".//{%s}theme" % NS_LOEXT)
     if theme is not None:
         theme.getparent().remove(theme)
 
-    # TODO: replace embedded image with some tiny one
-    # TODO: perhaps replace text with xxx (optionally)?
+    # ------------------------------------------------------------------
+    # 31) Strip document-statistic from office:meta  (changes every save)
+    # ------------------------------------------------------------------
+    doc_stat = root.find(".//{%s}document-statistic" % NS_META)
+    if doc_stat is not None:
+        p = doc_stat.getparent()
+        if p is not None:
+            p.remove(doc_stat)
+
+    # ------------------------------------------------------------------
+    # 32) Remove meta:auto-reload and meta:hyperlink-behaviour  (rare noise)
+    # ------------------------------------------------------------------
+    for tag in ["auto-reload", "hyperlink-behaviour"]:
+        el = root.find(".//{%s}%s" % (NS_META, tag))
+        if el is not None:
+            p = el.getparent()
+            if p is not None:
+                p.remove(el)
+
+    # ------------------------------------------------------------------
+    # 33) Strip internal-only meta fields that leak authoring info but
+    #     are not required for correct rendering:
+    #     meta:initial-creator, meta:printed-by, meta:print-date,
+    #     meta:editing-cycles, meta:editing-duration, meta:template
+    # ------------------------------------------------------------------
+    REMOVABLE_META = [
+        "initial-creator",
+        "printed-by",
+        "print-date",
+        "editing-cycles",
+        "editing-duration",
+        "template",
+    ]
+    meta_container = root.find(".//{%s}meta" % NS_OFFICE)
+    if meta_container is not None:
+        for tag in REMOVABLE_META:
+            el = meta_container.find("{%s}%s" % (NS_META, tag))
+            if el is not None:
+                log("removing meta:%s" % tag)
+                meta_container.remove(el)
+
+    # ------------------------------------------------------------------
+    # 34) Remove empty containers left behind by earlier cleanup steps
+    # ------------------------------------------------------------------
+    EMPTY_CONTAINERS = [
+        ("{%s}font-face-decls"  % NS_OFFICE, NS_OFFICE),
+        ("{%s}user-field-decls" % NS_TEXT,   NS_TEXT),
+        ("{%s}variable-decls"   % NS_TEXT,   NS_TEXT),
+        ("{%s}sequence-decls"   % NS_TEXT,   NS_TEXT),
+    ]
+    for (tag, _ns) in EMPTY_CONTAINERS:
+        el = root.find(".//" + tag)
+        if el is not None and len(el) == 0:
+            p = el.getparent()
+            if p is not None:
+                log("removing empty container %s" % tag)
+                p.remove(el)
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     args = sys.argv[1:]
 
     if not args:
-        print("Usage: flat-odf-cleanup.py [--verbose] file.fods")
-        exit(1)
+        print("Usage: flat-odf-cleanup.py [--verbose] file.fods [file2.fods ...]")
+        sys.exit(1)
 
     if "--verbose" in args:
         VERBOSE = True
         args.remove("--verbose")
 
     for f in args:
-        if os.path.isfile(f):
-            if VERBOSE:
-                print(f"processing {f}")
+        if not os.path.isfile(f):
+            print("Skipping (not a file): %s" % f, file=sys.stderr)
+            continue
 
-            dom = ET.parse(f)
-            root = dom.getroot()
+        log("processing %s" % f)
 
-            # serialize before cleanup
-            before = ET.tostring(root, encoding='utf-8')
+        dom  = ET.parse(f)
+        root = dom.getroot()
 
-            remove_unused(root)
+        before = ET.tostring(root, encoding="utf-8")
 
-            # serialize after cleanup
-            after = ET.tostring(root, encoding='utf-8')
+        remove_unused(root)
 
-            # only write if something actually changed
-            if before != after:
-                if VERBOSE:
-                    print(f"rewriting {f}")
-                dom.write(f, encoding='utf-8', xml_declaration=True)
-            else:
-                if VERBOSE:
-                    print(f"no changes in {f}")
-    """
-    TODO
-    chart:style-name
-    -> chart
-    style:data-style-name
-    -> data style
-    style:percentage-data-style-name
-    -> data style
-    """
+        after = ET.tostring(root, encoding="utf-8")
+
+        if before != after:
+            log("rewriting %s" % f)
+            dom.write(f, encoding="utf-8", xml_declaration=True)
+        else:
+            log("no changes in %s" % f)
 
 # vim: set shiftwidth=4 softtabstop=4 expandtab:
