@@ -105,6 +105,21 @@ def collect_all_attribute_list(usedstyles, attribute):
         for style in element.get(attribute).split(" "):
             usedstyles.add(style)
 
+def remove_unused_namespaces(root):
+    nsmap = root.nsmap
+    textuallyused = set()
+    for element in root.iter():
+        for value in element.attrib.values():
+            for prefix in nsmap:
+                if prefix and (prefix + ":") in value:
+                    textuallyused.add(prefix)
+        if element.text:
+            for prefix in nsmap:
+                if prefix and (prefix + ":") in element.text:
+                    textuallyused.add(prefix)
+    log("keeping textually-referenced namespace prefixes " + str(textuallyused))
+    ET.cleanup_namespaces(root, keep_ns_prefixes=textuallyused)
+
 def remove_unused(root):
     # 1) find all elements that may reference page styles - this gets rid of some paragraphs
     usedpstyles = get_used_p_styles(root)
@@ -463,6 +478,20 @@ def remove_unused(root):
             for image in frame.findall("{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}image"):
                 log("removing OLE replacement image")
                 frame.remove(image)
+
+    # 18) drop namespace declarations that are not actually needed. LibreOffice
+    # declares ~35 namespaces on the root element, most of which no element or
+    # attribute in a given document ever uses. lxml's own
+    # etree.cleanup_namespaces() would handle this, but it only looks at
+    # *structural* namespace use (element/attribute names) - ODF formulas
+    # (table:formula, and similar formula-bearing attributes) reference
+    # namespace prefixes like "of:" as plain text inside an attribute string
+    # (e.g. table:formula="of:=SUM(...)"), which is invisible to that
+    # analysis. Blindly removing "unused" declarations strips xmlns:of and
+    # LibreOffice then fails to resolve the formula (Err:510). So: keep any
+    # prefix that shows up as "prefix:" anywhere in element/attribute text
+    # content too, and only let lxml clean up the remainder.
+    remove_unused_namespaces(root)
 
     # TODO: perhaps replace text with xxx (optionally)?
 
