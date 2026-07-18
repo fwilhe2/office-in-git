@@ -422,7 +422,48 @@ def remove_unused(root):
     if theme is not None:
         theme.getparent().remove(theme)
 
-    # TODO: replace embedded image with some tiny one
+    # 16) strip volatile office:meta children that churn on every save but
+    # are not shown anywhere in the document itself (dates, edit counters,
+    # the generator version string, computed statistics). office:meta may
+    # also occur inside embedded objects (e.g. an OLE chart), so search the
+    # whole tree, not just the top-level document.
+    volatilemetatags = {
+        "{http://purl.org/dc/elements/1.1/}date",
+        "{urn:oasis:names:tc:opendocument:xmlns:meta:1.0}editing-duration",
+        "{urn:oasis:names:tc:opendocument:xmlns:meta:1.0}editing-cycles",
+        "{urn:oasis:names:tc:opendocument:xmlns:meta:1.0}generator",
+        "{urn:oasis:names:tc:opendocument:xmlns:meta:1.0}document-statistic",
+    }
+    for meta in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:office:1.0}meta"):
+        for child in list(meta):
+            if child.tag in volatilemetatags:
+                log("removing volatile meta element " + child.tag)
+                meta.remove(child)
+
+    # 17) remove cached raster replacement images for OLE-ish objects
+    # (charts, embedded spreadsheets, applets, plugins, floating frames).
+    # LibreOffice writes both the native representation (e.g. draw:object
+    # with a full embedded chart document) and a rendered-to-bitmap
+    # fallback draw:image for consumers that can't render the native
+    # format. LibreOffice itself always re-renders from the native
+    # representation, so the fallback bitmap is pure churn (it's a big
+    # base64 blob that changes on every save). Verified: removing it
+    # produces a pixel-identical PDF export. A draw:frame that contains
+    # only a draw:image (an actual inserted picture, no native object) is
+    # left untouched.
+    foreignobjecttags = {
+        "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}object",
+        "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}object-ole",
+        "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}applet",
+        "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}floating-frame",
+        "{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}plugin",
+    }
+    for frame in root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}frame"):
+        if any(child.tag in foreignobjecttags for child in frame):
+            for image in frame.findall("{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}image"):
+                log("removing OLE replacement image")
+                frame.remove(image)
+
     # TODO: perhaps replace text with xxx (optionally)?
 
 if __name__ == "__main__":
