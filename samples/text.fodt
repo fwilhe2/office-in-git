@@ -1,24 +1,117 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<office:document xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" office:version="1.4" office:mimetype="application/vnd.oasis.opendocument.text">
+<office:document
+ xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+ xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+ xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+ xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+ xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
+ xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
+ xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+ xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
+ xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0"
+ office:version="1.4"
+ office:mimetype="application/vnd.oasis.opendocument.text">
  <office:meta><meta:creation-date>2026-04-04T14:43:32.988905426</meta:creation-date></office:meta>
  <office:font-face-decls>
-  <style:font-face style:name="Liberation Sans" svg:font-family="'Liberation Sans'" style:font-family-generic="swiss" style:font-pitch="variable"/>
-  <style:font-face style:name="Liberation Serif" svg:font-family="'Liberation Serif'" style:font-family-generic="roman" style:font-pitch="variable"/>
-  <style:font-face style:name="Lohit Devanagari1" svg:font-family="'Lohit Devanagari'" style:font-family-generic="system" style:font-pitch="variable"/>
-  <style:font-face style:name="Noto Sans CJK SC" svg:font-family="'Noto Sans CJK SC'" style:font-family-generic="system" style:font-pitch="variable"/>
-  <style:font-face style:name="Noto Serif CJK SC" svg:font-family="'Noto Serif CJK SC'" style:font-family-generic="system" style:font-pitch="variable"/>
+  <style:font-face
+   style:name="Liberation Sans"
+   svg:font-family="'Liberation Sans'"
+   style:font-family-generic="swiss"
+   style:font-pitch="variable"/>
+  <style:font-face
+   style:name="Liberation Serif"
+   svg:font-family="'Liberation Serif'"
+   style:font-family-generic="roman"
+   style:font-pitch="variable"/>
+  <style:font-face
+   style:name="Lohit Devanagari1"
+   svg:font-family="'Lohit Devanagari'"
+   style:font-family-generic="system"
+   style:font-pitch="variable"/>
+  <style:font-face
+   style:name="Noto Sans CJK SC"
+   svg:font-family="'Noto Sans CJK SC'"
+   style:font-family-generic="system"
+   style:font-pitch="variable"/>
+  <style:font-face
+   style:name="Noto Serif CJK SC"
+   svg:font-family="'Noto Serif CJK SC'"
+   style:font-family-generic="system"
+   style:font-pitch="variable"/>
  </office:font-face-decls>
  <office:styles>
   <style:default-style style:family="graphic">
-   <style:graphic-properties svg:stroke-color="#3465a4" draw:fill-color="#729fcf" fo:wrap-option="no-wrap" draw:shadow-offset-x="0.3cm" draw:shadow-offset-y="0.3cm" draw:start-line-spacing-horizontal="0.283cm" draw:start-line-spacing-vertical="0.283cm" draw:end-line-spacing-horizontal="0.283cm" draw:end-line-spacing-vertical="0.283cm" style:flow-with-text="false"/>
-   <style:paragraph-properties style:text-autospace="ideograph-alpha" style:line-break="strict" loext:tab-stop-distance="0cm" style:writing-mode="lr-tb" style:font-independent-line-spacing="false">
+   <style:graphic-properties
+    svg:stroke-color="#3465a4"
+    draw:fill-color="#729fcf"
+    fo:wrap-option="no-wrap"
+    draw:shadow-offset-x="0.3cm"
+    draw:shadow-offset-y="0.3cm"
+    draw:start-line-spacing-horizontal="0.283cm"
+    draw:start-line-spacing-vertical="0.283cm"
+    draw:end-line-spacing-horizontal="0.283cm"
+    draw:end-line-spacing-vertical="0.283cm"
+    style:flow-with-text="false"/>
+   <style:paragraph-properties
+    style:text-autospace="ideograph-alpha"
+    style:line-break="strict"
+    loext:tab-stop-distance="0cm"
+    style:writing-mode="lr-tb"
+    style:font-independent-line-spacing="false">
     <style:tab-stops/>
    </style:paragraph-properties>
-   <style:text-properties style:use-window-font-color="true" loext:opacity="0%" style:font-name="Liberation Serif" fo:font-size="12pt" fo:language="de" fo:country="DE" style:letter-kerning="true" style:font-name-asian="Noto Serif CJK SC" style:font-size-asian="10.5pt" style:language-asian="zh" style:country-asian="CN" style:font-name-complex="Lohit Devanagari1" style:font-size-complex="12pt" style:language-complex="hi" style:country-complex="IN"/>
+   <style:text-properties
+    style:use-window-font-color="true"
+    loext:opacity="0%"
+    style:font-name="Liberation Serif"
+    fo:font-size="12pt"
+    fo:language="de"
+    fo:country="DE"
+    style:letter-kerning="true"
+    style:font-name-asian="Noto Serif CJK SC"
+    style:font-size-asian="10.5pt"
+    style:language-asian="zh"
+    style:country-asian="CN"
+    style:font-name-complex="Lohit Devanagari1"
+    style:font-size-complex="12pt"
+    style:language-complex="hi"
+    style:country-complex="IN"/>
   </style:default-style>
   <style:default-style style:family="paragraph">
-   <style:paragraph-properties fo:orphans="2" fo:widows="2" fo:hyphenation-ladder-count="no-limit" fo:hyphenation-keep="auto" loext:hyphenation-keep-type="column" style:text-autospace="ideograph-alpha" style:punctuation-wrap="hanging" style:line-break="strict" style:tab-stop-distance="1.251cm" style:writing-mode="page"/>
-   <style:text-properties style:use-window-font-color="true" loext:opacity="0%" style:font-name="Liberation Serif" fo:font-size="12pt" fo:language="de" fo:country="DE" style:letter-kerning="true" style:font-name-asian="Noto Serif CJK SC" style:font-size-asian="10.5pt" style:language-asian="zh" style:country-asian="CN" style:font-name-complex="Lohit Devanagari1" style:font-size-complex="12pt" style:language-complex="hi" style:country-complex="IN" fo:hyphenate="false" fo:hyphenation-remain-char-count="2" fo:hyphenation-push-char-count="2" loext:hyphenation-no-caps="false" loext:hyphenation-no-last-word="false" loext:hyphenation-word-char-count="5" loext:hyphenation-zone="no-limit"/>
+   <style:paragraph-properties
+    fo:orphans="2"
+    fo:widows="2"
+    fo:hyphenation-ladder-count="no-limit"
+    fo:hyphenation-keep="auto"
+    loext:hyphenation-keep-type="column"
+    style:text-autospace="ideograph-alpha"
+    style:punctuation-wrap="hanging"
+    style:line-break="strict"
+    style:tab-stop-distance="1.251cm"
+    style:writing-mode="page"/>
+   <style:text-properties
+    style:use-window-font-color="true"
+    loext:opacity="0%"
+    style:font-name="Liberation Serif"
+    fo:font-size="12pt"
+    fo:language="de"
+    fo:country="DE"
+    style:letter-kerning="true"
+    style:font-name-asian="Noto Serif CJK SC"
+    style:font-size-asian="10.5pt"
+    style:language-asian="zh"
+    style:country-asian="CN"
+    style:font-name-complex="Lohit Devanagari1"
+    style:font-size-complex="12pt"
+    style:language-complex="hi"
+    style:country-complex="IN"
+    fo:hyphenate="false"
+    fo:hyphenation-remain-char-count="2"
+    fo:hyphenation-push-char-count="2"
+    loext:hyphenation-no-caps="false"
+    loext:hyphenation-no-last-word="false"
+    loext:hyphenation-word-char-count="5"
+    loext:hyphenation-zone="no-limit"/>
   </style:default-style>
   <style:default-style style:family="table">
    <style:table-properties table:border-model="collapsing"/>
@@ -26,100 +119,217 @@
   <style:default-style style:family="table-row">
    <style:table-row-properties fo:keep-together="auto"/>
   </style:default-style>
-  <style:style style:name="Standard" style:family="paragraph" style:class="text"/>
-  <style:style style:name="Heading" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="chapter">
-   <style:paragraph-properties fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" style:contextual-spacing="false" fo:keep-with-next="always"/>
-   <style:text-properties style:font-name="Liberation Sans" fo:font-family="'Liberation Sans'" style:font-family-generic="swiss" style:font-pitch="variable" fo:font-size="14pt" style:font-name-asian="Noto Sans CJK SC" style:font-family-asian="'Noto Sans CJK SC'" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-size-asian="14pt" style:font-name-complex="Lohit Devanagari1" style:font-family-complex="'Lohit Devanagari'" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-size-complex="14pt"/>
+  <style:style
+   style:name="Standard"
+   style:family="paragraph"
+   style:class="text"/>
+  <style:style
+   style:name="Heading"
+   style:family="paragraph"
+   style:parent-style-name="Standard"
+   style:next-style-name="Text_20_body"
+   style:class="chapter">
+   <style:paragraph-properties
+    fo:margin-top="0.423cm"
+    fo:margin-bottom="0.212cm"
+    style:contextual-spacing="false"
+    fo:keep-with-next="always"/>
+   <style:text-properties
+    style:font-name="Liberation Sans"
+    fo:font-family="'Liberation Sans'"
+    style:font-family-generic="swiss"
+    style:font-pitch="variable"
+    fo:font-size="14pt"
+    style:font-name-asian="Noto Sans CJK SC"
+    style:font-family-asian="'Noto Sans CJK SC'"
+    style:font-family-generic-asian="system"
+    style:font-pitch-asian="variable"
+    style:font-size-asian="14pt"
+    style:font-name-complex="Lohit Devanagari1"
+    style:font-family-complex="'Lohit Devanagari'"
+    style:font-family-generic-complex="system"
+    style:font-pitch-complex="variable"
+    style:font-size-complex="14pt"/>
   </style:style>
-  <style:style style:name="Text_20_body" style:display-name="Text body" style:family="paragraph" style:parent-style-name="Standard" style:class="text">
-   <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.247cm" style:contextual-spacing="false" fo:line-height="115%"/>
+  <style:style
+   style:name="Text_20_body"
+   style:display-name="Text body"
+   style:family="paragraph"
+   style:parent-style-name="Standard"
+   style:class="text">
+   <style:paragraph-properties
+    fo:margin-top="0cm"
+    fo:margin-bottom="0.247cm"
+    style:contextual-spacing="false"
+    fo:line-height="115%"/>
   </style:style>
-  <style:style style:name="Title" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:class="chapter">
-   <style:paragraph-properties fo:text-align="center" style:justify-single-word="false"/>
-   <style:text-properties fo:font-size="28pt" fo:font-weight="bold" style:font-size-asian="28pt" style:font-weight-asian="bold" style:font-size-complex="28pt" style:font-weight-complex="bold"/>
+  <style:style
+   style:name="Title"
+   style:family="paragraph"
+   style:parent-style-name="Heading"
+   style:next-style-name="Text_20_body"
+   style:class="chapter">
+   <style:paragraph-properties
+    fo:text-align="center"
+    style:justify-single-word="false"/>
+   <style:text-properties
+    fo:font-size="28pt"
+    fo:font-weight="bold"
+    style:font-size-asian="28pt"
+    style:font-weight-asian="bold"
+    style:font-size-complex="28pt"
+    style:font-weight-complex="bold"/>
   </style:style>
   <text:outline-style style:name="Outline">
-   <text:outline-level-style text:level="1" style:num-format="">
+   <text:outline-level-style
+    text:level="1"
+    style:num-format="">
     <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
      <style:list-level-label-alignment text:label-followed-by="listtab"/>
     </style:list-level-properties>
    </text:outline-level-style>
-   <text:outline-level-style text:level="2" style:num-format="">
+   <text:outline-level-style
+    text:level="2"
+    style:num-format="">
     <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
      <style:list-level-label-alignment text:label-followed-by="listtab"/>
     </style:list-level-properties>
    </text:outline-level-style>
-   <text:outline-level-style text:level="3" style:num-format="">
+   <text:outline-level-style
+    text:level="3"
+    style:num-format="">
     <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
      <style:list-level-label-alignment text:label-followed-by="listtab"/>
     </style:list-level-properties>
    </text:outline-level-style>
-   <text:outline-level-style text:level="4" style:num-format="">
+   <text:outline-level-style
+    text:level="4"
+    style:num-format="">
     <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
      <style:list-level-label-alignment text:label-followed-by="listtab"/>
     </style:list-level-properties>
    </text:outline-level-style>
-   <text:outline-level-style text:level="5" style:num-format="">
+   <text:outline-level-style
+    text:level="5"
+    style:num-format="">
     <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
      <style:list-level-label-alignment text:label-followed-by="listtab"/>
     </style:list-level-properties>
    </text:outline-level-style>
-   <text:outline-level-style text:level="6" style:num-format="">
+   <text:outline-level-style
+    text:level="6"
+    style:num-format="">
     <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
      <style:list-level-label-alignment text:label-followed-by="listtab"/>
     </style:list-level-properties>
    </text:outline-level-style>
-   <text:outline-level-style text:level="7" style:num-format="">
+   <text:outline-level-style
+    text:level="7"
+    style:num-format="">
     <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
      <style:list-level-label-alignment text:label-followed-by="listtab"/>
     </style:list-level-properties>
    </text:outline-level-style>
-   <text:outline-level-style text:level="8" style:num-format="">
+   <text:outline-level-style
+    text:level="8"
+    style:num-format="">
     <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
      <style:list-level-label-alignment text:label-followed-by="listtab"/>
     </style:list-level-properties>
    </text:outline-level-style>
-   <text:outline-level-style text:level="9" style:num-format="">
+   <text:outline-level-style
+    text:level="9"
+    style:num-format="">
     <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
      <style:list-level-label-alignment text:label-followed-by="listtab"/>
     </style:list-level-properties>
    </text:outline-level-style>
-   <text:outline-level-style text:level="10" style:num-format="">
+   <text:outline-level-style
+    text:level="10"
+    style:num-format="">
     <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
      <style:list-level-label-alignment text:label-followed-by="listtab"/>
     </style:list-level-properties>
    </text:outline-level-style>
   </text:outline-style>
-  <text:notes-configuration text:note-class="footnote" style:num-format="1" text:start-value="0" text:footnotes-position="page" text:start-numbering-at="document"/>
-  <text:notes-configuration text:note-class="endnote" style:num-format="i" text:start-value="0"/>
-  <text:linenumbering-configuration text:number-lines="false" text:offset="0.499cm" style:num-format="1" text:number-position="left" text:increment="5"/>
+  <text:notes-configuration
+   text:note-class="footnote"
+   style:num-format="1"
+   text:start-value="0"
+   text:footnotes-position="page"
+   text:start-numbering-at="document"/>
+  <text:notes-configuration
+   text:note-class="endnote"
+   style:num-format="i"
+   text:start-value="0"/>
+  <text:linenumbering-configuration
+   text:number-lines="false"
+   text:offset="0.499cm"
+   style:num-format="1"
+   text:number-position="left"
+   text:increment="5"/>
   </office:styles>
  <office:automatic-styles>
-  <style:style style:name="P1" style:family="paragraph" style:parent-style-name="Standard">
+  <style:style
+   style:name="P1"
+   style:family="paragraph"
+   style:parent-style-name="Standard">
    <style:text-properties/>
   </style:style>
-  <style:style style:name="T1" style:family="text">
+  <style:style
+   style:name="T1"
+   style:family="text">
    <style:text-properties/>
   </style:style>
   <style:page-layout style:name="pm1">
-   <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="2cm" fo:margin-left="2cm" fo:margin-right="2cm" style:writing-mode="lr-tb" style:footnote-max-height="0cm" loext:margin-gutter="0cm">
-    <style:footnote-sep style:width="0.018cm" style:distance-before-sep="0.101cm" style:distance-after-sep="0.101cm" style:line-style="solid" style:adjustment="left" style:rel-width="25%" style:color="#000000"/>
+   <style:page-layout-properties
+    fo:page-width="21.001cm"
+    fo:page-height="29.7cm"
+    style:num-format="1"
+    style:print-orientation="portrait"
+    fo:margin-top="2cm"
+    fo:margin-bottom="2cm"
+    fo:margin-left="2cm"
+    fo:margin-right="2cm"
+    style:writing-mode="lr-tb"
+    style:footnote-max-height="0cm"
+    loext:margin-gutter="0cm">
+    <style:footnote-sep
+     style:width="0.018cm"
+     style:distance-before-sep="0.101cm"
+     style:distance-after-sep="0.101cm"
+     style:line-style="solid"
+     style:adjustment="left"
+     style:rel-width="25%"
+     style:color="#000000"/>
    </style:page-layout-properties>
    <style:header-style/>
    <style:footer-style/>
   </style:page-layout>
  </office:automatic-styles>
  <office:master-styles>
-  <style:master-page style:name="Standard" style:page-layout-name="pm1"/>
+  <style:master-page
+   style:name="Standard"
+   style:page-layout-name="pm1"/>
  </office:master-styles>
  <office:body>
   <office:text>
    <text:sequence-decls>
-    <text:sequence-decl text:display-outline-level="0" text:name="Illustration"/>
-    <text:sequence-decl text:display-outline-level="0" text:name="Table"/>
-    <text:sequence-decl text:display-outline-level="0" text:name="Text"/>
-    <text:sequence-decl text:display-outline-level="0" text:name="Drawing"/>
-    <text:sequence-decl text:display-outline-level="0" text:name="Figure"/>
+    <text:sequence-decl
+     text:display-outline-level="0"
+     text:name="Illustration"/>
+    <text:sequence-decl
+     text:display-outline-level="0"
+     text:name="Table"/>
+    <text:sequence-decl
+     text:display-outline-level="0"
+     text:name="Text"/>
+    <text:sequence-decl
+     text:display-outline-level="0"
+     text:name="Drawing"/>
+    <text:sequence-decl
+     text:display-outline-level="0"
+     text:name="Figure"/>
    </text:sequence-decls>
    <text:p text:style-name="Title">Lorem ipsum dolor</text:p>
    <text:p text:style-name="P1"/>

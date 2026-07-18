@@ -17,8 +17,43 @@ from lxml import etree as ET
 #import xml.etree.ElementTree as ET
 
 import os.path
+import re
 
 VERBOSE = False
+
+# Matches a start tag with two or more attributes, e.g.
+# <style:style style:name="ce1" style:family="table-cell">. Safe to do with
+# a regex here (rather than a proper XML tokenizer) because lxml always
+# double-quotes attribute values and always escapes any literal '<', '>' or
+# '"' inside them - so a start tag never contains an unescaped '<', '>' or
+# '"' except as its own delimiters, and no ODF flat-XML file uses CDATA.
+_TAG_WITH_ATTRS_RE = re.compile(
+    rb'^([ \t]*)<([A-Za-z_][-\w.]*(?::[A-Za-z_][-\w.]*)?)'
+    rb'((?:\s+[A-Za-z_][-\w.]*(?::[A-Za-z_][-\w.]*)?="[^"]*")+)(\s*/?)>',
+    re.MULTILINE,
+)
+_ATTR_RE = re.compile(rb'([A-Za-z_][-\w.]*(?::[A-Za-z_][-\w.]*)?)="([^"]*)"')
+
+def split_attributes_onto_lines(data):
+    # Reformat any start tag with 2+ attributes to one attribute per line,
+    # so that changing a single attribute shows up as a single-line diff
+    # instead of rewriting one huge line. Purely cosmetic: verified by
+    # re-parsing the result and comparing against the unformatted
+    # serialization (see __main__).
+    def repl(match):
+        indent, tagname, attrs_blob, closing = match.groups()
+        attrs = _ATTR_RE.findall(attrs_blob)
+        if len(attrs) < 2:
+            return match.group(0)
+        selfclosing = b'/' in closing
+        lines = [indent + b'<' + tagname]
+        for i, (name, value) in enumerate(attrs):
+            line = indent + b' ' + name + b'="' + value + b'"'
+            if i == len(attrs) - 1:
+                line += b'/>' if selfclosing else b'>'
+            lines.append(line)
+        return b'\n'.join(lines)
+    return _TAG_WITH_ATTRS_RE.sub(repl, data)
 
 def log(*args, **kwargs):
     if VERBOSE:
@@ -118,7 +153,13 @@ def remove_unused_namespaces(root):
                 if prefix and (prefix + ":") in element.text:
                     textuallyused.add(prefix)
     log("keeping textually-referenced namespace prefixes " + str(textuallyused))
-    ET.cleanup_namespaces(root, keep_ns_prefixes=textuallyused)
+    # top_nsmap re-declares every currently-declared prefix on the root
+    # first; cleanup then drops the (now redundant) re-declarations that
+    # LibreOffice sprinkles on individual elements deeper in the tree
+    # (e.g. every style:style in automatic-styles repeats a dozen xmlns
+    # declarations that are already in scope from the root), on top of
+    # dropping prefixes that are entirely unused.
+    ET.cleanup_namespaces(root, top_nsmap=nsmap, keep_ns_prefixes=textuallyused)
 
 def remove_unused(root):
     # 1) find all elements that may reference page styles - this gets rid of some paragraphs
@@ -386,7 +427,38 @@ def remove_unused(root):
     strokedashs = root.findall(".//{urn:oasis:names:tc:opendocument:xmlns:drawing:1.0}stroke-dash")
     remove_unused_drawings(root, usedstrokedashs, strokedashs, "stroke-dash")
 
-    # TODO 3 other styles
+    # 12b) unused data (number format) styles - e.g. N0, N2, N114 - that
+    # LibreOffice always writes a default set of, whether or not any cell
+    # actually uses them. A data style may itself reference another one
+    # conditionally via style:map (e.g. a currency style maps negative
+    # values to a red variant), so that referenced style counts as used
+    # too, chased to a fixed point same as add_parent_styles does for
+    # paragraph/page styles.
+    datastyletags = {
+        "{urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0}number-style",
+        "{urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0}currency-style",
+        "{urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0}percentage-style",
+        "{urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0}date-style",
+        "{urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0}time-style",
+        "{urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0}boolean-style",
+        "{urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0}text-style",
+    }
+    useddatastyles = set()
+    collect_all_attribute(useddatastyles, "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}data-style-name")
+    collect_all_attribute(useddatastyles, "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}percentage-data-style-name")
+    datastyles = [element for element in root.iter() if element.tag in datastyletags]
+    size = -1
+    while size != len(useddatastyles):
+        size = len(useddatastyles)
+        for datastyle in datastyles:
+            if datastyle.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name") in useddatastyles:
+                for map_ in datastyle.findall("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}map"):
+                    useddatastyles.add(map_.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}apply-style-name"))
+    for datastyle in datastyles:
+        name = datastyle.get("{urn:oasis:names:tc:opendocument:xmlns:style:1.0}name")
+        if name not in useddatastyles:
+            log("removing unused data style " + str(name))
+            datastyle.getparent().remove(datastyle)
 
     # 13) unused font-face-decls
     usedfonts = set()
@@ -479,7 +551,19 @@ def remove_unused(root):
                 log("removing OLE replacement image")
                 frame.remove(image)
 
-    # 18) drop namespace declarations that are not actually needed. LibreOffice
+    # 18) remove calcext:value-type. This LibreOffice extension attribute
+    # caches the cell's "logical" value subtype (e.g. currency vs date,
+    # which office:value-type alone can't distinguish - both are just
+    # "float"). It's derived purely from the cell's applied number-format
+    # style, so LibreOffice recomputes it on load; it plays no part in
+    # rendering. Verified via round-trip: stripping it and having
+    # LibreOffice re-export to flat XML reproduces the exact same
+    # calcext:value-type values, and PDF export is pixel-identical.
+    calcextvaluetype = "{urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0}value-type"
+    for element in root.findall(".//*[@" + calcextvaluetype + "]"):
+        del element.attrib[calcextvaluetype]
+
+    # 19) drop namespace declarations that are not actually needed. LibreOffice
     # declares ~35 namespaces on the root element, most of which no element or
     # attribute in a given document ever uses. lxml's own
     # etree.cleanup_namespaces() would handle this, but it only looks at
@@ -511,22 +595,33 @@ if __name__ == "__main__":
             if VERBOSE:
                 print(f"processing {f}")
 
+            with open(f, 'rb') as fh:
+                original = fh.read()
+
             dom = ET.parse(f)
             root = dom.getroot()
 
-            # serialize before cleanup
-            before = ET.tostring(root, encoding='utf-8')
-
             remove_unused(root)
 
-            # serialize after cleanup
-            after = ET.tostring(root, encoding='utf-8')
+            serialized = ET.tostring(root, encoding='UTF-8', xml_declaration=True)
+            formatted = split_attributes_onto_lines(serialized)
+
+            # the attribute-splitting is only ever a cosmetic change: prove
+            # it by re-parsing the formatted output and checking it
+            # round-trips to the exact same tree as the unformatted
+            # serialization (lxml itself normalizes intra-tag whitespace
+            # away, so comparing their single-line serializations is an
+            # exact structural comparison).
+            reparsed = ET.tostring(ET.fromstring(formatted), encoding='utf-8')
+            if reparsed != ET.tostring(ET.fromstring(serialized), encoding='utf-8'):
+                raise AssertionError(f"attribute reformatting changed document structure in {f}")
 
             # only write if something actually changed
-            if before != after:
+            if formatted != original:
                 if VERBOSE:
                     print(f"rewriting {f}")
-                dom.write(f, encoding='utf-8', xml_declaration=True)
+                with open(f, 'wb') as fh:
+                    fh.write(formatted)
             else:
                 if VERBOSE:
                     print(f"no changes in {f}")

@@ -1,86 +1,210 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<office:document xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" office:version="1.4" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
+<office:document
+ xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+ xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+ xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
+ xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+ xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+ xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2"
+ xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
+ xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
+ xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+ xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0"
+ xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
+ xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0"
+ office:version="1.4"
+ office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
  <office:meta><meta:creation-date>2026-07-08T17:27:19.410534840</meta:creation-date></office:meta>
  <office:font-face-decls>
-  <style:font-face style:name="Liberation Sans" svg:font-family="'Liberation Sans'" style:font-family-generic="swiss" style:font-pitch="variable"/>
-  <style:font-face style:name="Noto Sans" svg:font-family="'Noto Sans'" style:font-family-generic="system" style:font-pitch="variable"/>
-  <style:font-face style:name="Noto Sans CJK SC" svg:font-family="'Noto Sans CJK SC'" style:font-family-generic="system" style:font-pitch="variable"/>
+  <style:font-face
+   style:name="Liberation Sans"
+   svg:font-family="'Liberation Sans'"
+   style:font-family-generic="swiss"
+   style:font-pitch="variable"/>
+  <style:font-face
+   style:name="Noto Sans"
+   svg:font-family="'Noto Sans'"
+   style:font-family-generic="system"
+   style:font-pitch="variable"/>
+  <style:font-face
+   style:name="Noto Sans CJK SC"
+   svg:font-family="'Noto Sans CJK SC'"
+   style:font-family-generic="system"
+   style:font-pitch="variable"/>
  </office:font-face-decls>
  <office:styles>
   <style:default-style style:family="table-cell">
    <style:paragraph-properties style:tab-stop-distance="1.27cm"/>
-   <style:text-properties style:font-name="Liberation Sans" fo:font-size="10pt" fo:language="en" fo:country="US" style:font-name-asian="Noto Sans CJK SC" style:font-size-asian="10pt" style:language-asian="zh" style:country-asian="CN" style:font-name-complex="Noto Sans" style:font-size-complex="10pt" style:language-complex="hi" style:country-complex="IN"/>
+   <style:text-properties
+    style:font-name="Liberation Sans"
+    fo:font-size="10pt"
+    fo:language="en"
+    fo:country="US"
+    style:font-name-asian="Noto Sans CJK SC"
+    style:font-size-asian="10pt"
+    style:language-asian="zh"
+    style:country-asian="CN"
+    style:font-name-complex="Noto Sans"
+    style:font-size-complex="10pt"
+    style:language-complex="hi"
+    style:country-complex="IN"/>
   </style:default-style>
   <style:default-style style:family="graphic">
-   <style:graphic-properties svg:stroke-color="#3465a4" draw:fill-color="#729fcf" fo:wrap-option="no-wrap" draw:shadow-offset-x="0.3cm" draw:shadow-offset-y="0.3cm" style:writing-mode="page"/>
-   <style:paragraph-properties style:text-autospace="ideograph-alpha" style:punctuation-wrap="simple" style:line-break="strict" loext:tab-stop-distance="0cm" style:writing-mode="page" style:font-independent-line-spacing="false">
+   <style:graphic-properties
+    svg:stroke-color="#3465a4"
+    draw:fill-color="#729fcf"
+    fo:wrap-option="no-wrap"
+    draw:shadow-offset-x="0.3cm"
+    draw:shadow-offset-y="0.3cm"
+    style:writing-mode="page"/>
+   <style:paragraph-properties
+    style:text-autospace="ideograph-alpha"
+    style:punctuation-wrap="simple"
+    style:line-break="strict"
+    loext:tab-stop-distance="0cm"
+    style:writing-mode="page"
+    style:font-independent-line-spacing="false">
     <style:tab-stops/>
    </style:paragraph-properties>
-   <style:text-properties style:use-window-font-color="true" loext:opacity="0%" fo:font-family="'Liberation Serif'" style:font-family-generic="roman" style:font-pitch="variable" fo:font-size="12pt" fo:language="en" fo:country="US" style:letter-kerning="true" style:font-family-asian="'DejaVu Sans'" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-size-asian="12pt" style:language-asian="zh" style:country-asian="CN" style:font-family-complex="'DejaVu Sans'" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-size-complex="12pt" style:language-complex="hi" style:country-complex="IN"/>
+   <style:text-properties
+    style:use-window-font-color="true"
+    loext:opacity="0%"
+    fo:font-family="'Liberation Serif'"
+    style:font-family-generic="roman"
+    style:font-pitch="variable"
+    fo:font-size="12pt"
+    fo:language="en"
+    fo:country="US"
+    style:letter-kerning="true"
+    style:font-family-asian="'DejaVu Sans'"
+    style:font-family-generic-asian="system"
+    style:font-pitch-asian="variable"
+    style:font-size-asian="12pt"
+    style:language-asian="zh"
+    style:country-asian="CN"
+    style:font-family-complex="'DejaVu Sans'"
+    style:font-family-generic-complex="system"
+    style:font-pitch-complex="variable"
+    style:font-size-complex="12pt"
+    style:language-complex="hi"
+    style:country-complex="IN"/>
   </style:default-style>
-  <number:number-style style:name="N0">
-   <number:number number:min-integer-digits="1"/>
-  </number:number-style>
-  <number:currency-style style:name="N114P0" style:volatile="true">
-   <number:number number:decimal-places="2" number:min-decimal-places="2" number:min-integer-digits="1" number:grouping="true"/>
+  <number:currency-style
+   style:name="N114P0"
+   style:volatile="true">
+   <number:number
+    number:decimal-places="2"
+    number:min-decimal-places="2"
+    number:min-integer-digits="1"
+    number:grouping="true"/>
    <number:text> </number:text>
-   <number:currency-symbol number:language="de" number:country="DE">€</number:currency-symbol>
+   <number:currency-symbol
+    number:language="de"
+    number:country="DE">€</number:currency-symbol>
   </number:currency-style>
   <number:currency-style style:name="N114">
    <style:text-properties fo:color="#ff0000"/>
    <number:text>-</number:text>
-   <number:number number:decimal-places="2" number:min-decimal-places="2" number:min-integer-digits="1" number:grouping="true"/>
+   <number:number
+    number:decimal-places="2"
+    number:min-decimal-places="2"
+    number:min-integer-digits="1"
+    number:grouping="true"/>
    <number:text> </number:text>
-   <number:currency-symbol number:language="de" number:country="DE">€</number:currency-symbol>
-   <style:map style:condition="value()&gt;=0" style:apply-style-name="N114P0"/>
+   <number:currency-symbol
+    number:language="de"
+    number:country="DE">€</number:currency-symbol>
+   <style:map
+    style:condition="value()&gt;=0"
+    style:apply-style-name="N114P0"/>
   </number:currency-style>
-  <number:currency-style style:name="N115">
-   <style:text-properties fo:color="#ff0000"/>
-   <number:text>-</number:text>
-   <number:currency-symbol number:language="en" number:country="US">$</number:currency-symbol>
-   <number:number number:decimal-places="2" number:min-decimal-places="2" number:min-integer-digits="1" number:grouping="true"/>
-  </number:currency-style>
-  <style:style style:name="Default" style:family="table-cell"/>
+  <style:style
+   style:name="Default"
+   style:family="table-cell"/>
   </office:styles>
  <office:automatic-styles>
-  <style:style style:name="co1" style:family="table-column">
-   <style:table-column-properties fo:break-before="auto" style:column-width="2.258cm"/>
+  <style:style
+   style:name="co1"
+   style:family="table-column">
+   <style:table-column-properties
+    fo:break-before="auto"
+    style:column-width="2.258cm"/>
   </style:style>
-  <style:style style:name="co2" style:family="table-column">
-   <style:table-column-properties fo:break-before="auto" style:column-width="3.113cm"/>
+  <style:style
+   style:name="co2"
+   style:family="table-column">
+   <style:table-column-properties
+    fo:break-before="auto"
+    style:column-width="3.113cm"/>
   </style:style>
-  <style:style style:name="co3" style:family="table-column">
-   <style:table-column-properties fo:break-before="auto" style:column-width="2.404cm"/>
+  <style:style
+   style:name="co3"
+   style:family="table-column">
+   <style:table-column-properties
+    fo:break-before="auto"
+    style:column-width="2.404cm"/>
   </style:style>
-  <style:style style:name="co4" style:family="table-column">
-   <style:table-column-properties fo:break-before="auto" style:column-width="2.678cm"/>
+  <style:style
+   style:name="co4"
+   style:family="table-column">
+   <style:table-column-properties
+    fo:break-before="auto"
+    style:column-width="2.678cm"/>
   </style:style>
-  <style:style style:name="co5" style:family="table-column">
-   <style:table-column-properties fo:break-before="auto" style:column-width="3.059cm"/>
+  <style:style
+   style:name="co5"
+   style:family="table-column">
+   <style:table-column-properties
+    fo:break-before="auto"
+    style:column-width="3.059cm"/>
   </style:style>
-  <style:style style:name="ro1" style:family="table-row">
-   <style:table-row-properties style:row-height="0.452cm" fo:break-before="auto" style:use-optimal-row-height="true"/>
+  <style:style
+   style:name="ro1"
+   style:family="table-row">
+   <style:table-row-properties
+    style:row-height="0.452cm"
+    fo:break-before="auto"
+    style:use-optimal-row-height="true"/>
   </style:style>
-  <style:style style:name="ta1" style:family="table" style:master-page-name="Default">
-   <style:table-properties table:display="true" style:writing-mode="lr-tb"/>
+  <style:style
+   style:name="ta1"
+   style:family="table"
+   style:master-page-name="Default">
+   <style:table-properties
+    table:display="true"
+    style:writing-mode="lr-tb"/>
   </style:style>
-  <number:number-style style:name="N2">
-   <number:number number:decimal-places="2" number:min-decimal-places="2" number:min-integer-digits="1"/>
-  </number:number-style>
-  <style:style style:name="ce3" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N114"/>
-  <style:style style:name="ce2" style:family="table-cell" style:parent-style-name="Default"/>
+  <style:style
+   style:name="ce3"
+   style:family="table-cell"
+   style:parent-style-name="Default"
+   style:data-style-name="N114"/>
+  <style:style
+   style:name="ce2"
+   style:family="table-cell"
+   style:parent-style-name="Default"/>
   <style:page-layout style:name="pm1">
    <style:page-layout-properties style:writing-mode="lr-tb"/>
    <style:header-style>
-    <style:header-footer-properties fo:min-height="0.75cm" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-bottom="0.25cm"/>
+    <style:header-footer-properties
+     fo:min-height="0.75cm"
+     fo:margin-left="0cm"
+     fo:margin-right="0cm"
+     fo:margin-bottom="0.25cm"/>
    </style:header-style>
    <style:footer-style>
-    <style:header-footer-properties fo:min-height="0.75cm" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0.25cm"/>
+    <style:header-footer-properties
+     fo:min-height="0.75cm"
+     fo:margin-left="0cm"
+     fo:margin-right="0cm"
+     fo:margin-top="0.25cm"/>
    </style:footer-style>
   </style:page-layout>
   </office:automatic-styles>
  <office:master-styles>
-  <style:master-page style:name="Default" style:page-layout-name="pm1">
+  <style:master-page
+   style:name="Default"
+   style:page-layout-name="pm1">
    <style:header>
     <text:p><text:sheet-name>???</text:sheet-name></text:p>
    </style:header>
@@ -95,190 +219,303 @@
   </office:master-styles>
  <office:body>
   <office:spreadsheet>
-   <table:calculation-settings table:automatic-find-labels="false" table:use-regular-expressions="false" table:use-wildcards="true" table:null-year="1950"/>
+   <table:calculation-settings
+    table:automatic-find-labels="false"
+    table:use-regular-expressions="false"
+    table:use-wildcards="true"
+    table:null-year="1950"/>
    <table:content-validations>
-    <table:content-validation table:name="val1" table:condition="of:cell-content-is-in-list(PRODUCTS)" table:allow-empty-cell="true" table:display-list="unsorted" table:base-cell-address="'Price List'.B4">
-     <table:error-message table:message-type="stop" table:display="true"/>
+    <table:content-validation
+     table:name="val1"
+     table:condition="of:cell-content-is-in-list(PRODUCTS)"
+     table:allow-empty-cell="true"
+     table:display-list="unsorted"
+     table:base-cell-address="'Price List'.B4">
+     <table:error-message
+      table:message-type="stop"
+      table:display="true"/>
     </table:content-validation>
    </table:content-validations>
-   <table:table table:name="Price List" table:style-name="ta1">
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co3" table:default-cell-style-name="ce3"/>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="2">
+   <table:table
+    table:name="Price List"
+    table:style-name="ta1">
+    <table:table-column
+     table:style-name="co1"
+     table:default-cell-style-name="Default"/>
+    <table:table-column
+     table:style-name="co2"
+     table:default-cell-style-name="Default"/>
+    <table:table-column
+     table:style-name="co3"
+     table:default-cell-style-name="ce3"/>
+    <table:table-row
+     table:style-name="ro1"
+     table:number-rows-repeated="2">
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Product Name</text:p>
      </table:table-cell>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Unit Price</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell table:content-validation-name="val1" office:value-type="string" calcext:value-type="string">
+     <table:table-cell
+      table:content-validation-name="val1"
+      office:value-type="string">
       <text:p>Eco Widgets</text:p>
      </table:table-cell>
-     <table:table-cell office:value-type="currency" office:currency="EUR" office:value="12.5" calcext:value-type="currency">
+     <table:table-cell
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="12.5">
       <text:p>12,50 €</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell table:content-validation-name="val1" office:value-type="string" calcext:value-type="string">
+     <table:table-cell
+      table:content-validation-name="val1"
+      office:value-type="string">
       <text:p>Super Gadgets</text:p>
      </table:table-cell>
-     <table:table-cell office:value-type="currency" office:currency="EUR" office:value="24.99" calcext:value-type="currency">
+     <table:table-cell
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="24.99">
       <text:p>24,99 €</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell table:content-validation-name="val1" office:value-type="string" calcext:value-type="string">
+     <table:table-cell
+      table:content-validation-name="val1"
+      office:value-type="string">
       <text:p>Mega Bolts</text:p>
      </table:table-cell>
-     <table:table-cell office:value-type="currency" office:currency="EUR" office:value="4.75" calcext:value-type="currency">
+     <table:table-cell
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="4.75">
       <text:p>4,75 €</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell table:content-validation-name="val1" office:value-type="string" calcext:value-type="string">
+     <table:table-cell
+      table:content-validation-name="val1"
+      office:value-type="string">
       <text:p>Ultra Springs</text:p>
      </table:table-cell>
-     <table:table-cell office:value-type="currency" office:currency="EUR" office:value="8.2" calcext:value-type="currency">
+     <table:table-cell
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="8.2">
       <text:p>8,20 €</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell table:content-validation-name="val1" office:value-type="string" calcext:value-type="string">
+     <table:table-cell
+      table:content-validation-name="val1"
+      office:value-type="string">
       <text:p>Hyper Gears</text:p>
      </table:table-cell>
-     <table:table-cell office:value-type="currency" office:currency="EUR" office:value="45" calcext:value-type="currency">
+     <table:table-cell
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="45">
       <text:p>45,00 €</text:p>
      </table:table-cell>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="227">
+    <table:table-row
+     table:style-name="ro1"
+     table:number-rows-repeated="227">
      <table:table-cell/>
      <table:table-cell table:content-validation-name="val1"/>
      <table:table-cell/>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="1048340">
+    <table:table-row
+     table:style-name="ro1"
+     table:number-rows-repeated="1048340">
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
    </table:table>
-   <table:table table:name="Inventory" table:style-name="ta1">
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co5" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co1" table:default-cell-style-name="ce3"/>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="2">
+   <table:table
+    table:name="Inventory"
+    table:style-name="ta1">
+    <table:table-column
+     table:style-name="co1"
+     table:default-cell-style-name="Default"/>
+    <table:table-column
+     table:style-name="co4"
+     table:default-cell-style-name="Default"/>
+    <table:table-column
+     table:style-name="co5"
+     table:default-cell-style-name="Default"/>
+    <table:table-column
+     table:style-name="co1"
+     table:default-cell-style-name="ce3"/>
+    <table:table-row
+     table:style-name="ro1"
+     table:number-rows-repeated="2">
      <table:table-cell table:number-columns-repeated="4"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Product Name</text:p>
      </table:table-cell>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Quantity in Stock</text:p>
      </table:table-cell>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Cost</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Eco Widgets</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce2" office:value-type="float" office:value="12" calcext:value-type="float">
+     <table:table-cell
+      table:style-name="ce2"
+      office:value-type="float"
+      office:value="12">
       <text:p>12</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK" office:value-type="currency" office:currency="EUR" office:value="150" calcext:value-type="currency">
+     <table:table-cell
+      table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK"
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="150">
       <text:p>150,00 €</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Super Gadgets</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce2" office:value-type="float" office:value="3" calcext:value-type="float">
+     <table:table-cell
+      table:style-name="ce2"
+      office:value-type="float"
+      office:value="3">
       <text:p>3</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK" office:value-type="currency" office:currency="EUR" office:value="74.97" calcext:value-type="currency">
+     <table:table-cell
+      table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK"
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="74.97">
       <text:p>74,97 €</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Mega Bolts</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce2" office:value-type="float" office:value="50" calcext:value-type="float">
+     <table:table-cell
+      table:style-name="ce2"
+      office:value-type="float"
+      office:value="50">
       <text:p>50</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK" office:value-type="currency" office:currency="EUR" office:value="237.5" calcext:value-type="currency">
+     <table:table-cell
+      table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK"
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="237.5">
       <text:p>237,50 €</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Ultra Springs</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce2" office:value-type="float" office:value="2" calcext:value-type="float">
+     <table:table-cell
+      table:style-name="ce2"
+      office:value-type="float"
+      office:value="2">
       <text:p>2</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK" office:value-type="currency" office:currency="EUR" office:value="16.4" calcext:value-type="currency">
+     <table:table-cell
+      table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK"
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="16.4">
       <text:p>16,40 €</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Hyper Gears</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce2" office:value-type="float" office:value="15" calcext:value-type="float">
+     <table:table-cell
+      table:style-name="ce2"
+      office:value-type="float"
+      office:value="15">
       <text:p>15</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK" office:value-type="currency" office:currency="EUR" office:value="675" calcext:value-type="currency">
+     <table:table-cell
+      table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK"
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="675">
       <text:p>675,00 €</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Eco Widgets</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce2" office:value-type="float" office:value="8" calcext:value-type="float">
+     <table:table-cell
+      table:style-name="ce2"
+      office:value-type="float"
+      office:value="8">
       <text:p>8</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK" office:value-type="currency" office:currency="EUR" office:value="100" calcext:value-type="currency">
+     <table:table-cell
+      table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK"
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="100">
       <text:p>100,00 €</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell/>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
+     <table:table-cell office:value-type="string">
       <text:p>Mega Bolts</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce2" office:value-type="float" office:value="4" calcext:value-type="float">
+     <table:table-cell
+      table:style-name="ce2"
+      office:value-type="float"
+      office:value="4">
       <text:p>4</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK" office:value-type="currency" office:currency="EUR" office:value="19" calcext:value-type="currency">
+     <table:table-cell
+      table:formula="of:=VLOOKUP(PROD;PRODUCTS_DB;2;0)*STOCK"
+      office:value-type="currency"
+      office:currency="EUR"
+      office:value="19">
       <text:p>19,00 €</text:p>
      </table:table-cell>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="1048565">
+    <table:table-row
+     table:style-name="ro1"
+     table:number-rows-repeated="1048565">
      <table:table-cell table:number-columns-repeated="4"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
@@ -287,21 +524,45 @@
     <calcext:conditional-formats>
      <calcext:conditional-format calcext:target-range-address="Inventory.C4:Inventory.C10">
       <calcext:color-scale>
-       <calcext:color-scale-entry calcext:value="5" calcext:type="number" calcext:color="#ff0000"/>
-       <calcext:color-scale-entry calcext:value="50" calcext:type="percentile" calcext:color="#ffff00"/>
-       <calcext:color-scale-entry calcext:value="0" calcext:type="maximum" calcext:color="#00a933"/>
+       <calcext:color-scale-entry
+        calcext:value="5"
+        calcext:type="number"
+        calcext:color="#ff0000"/>
+       <calcext:color-scale-entry
+        calcext:value="50"
+        calcext:type="percentile"
+        calcext:color="#ffff00"/>
+       <calcext:color-scale-entry
+        calcext:value="0"
+        calcext:type="maximum"
+        calcext:color="#00a933"/>
       </calcext:color-scale>
      </calcext:conditional-format>
     </calcext:conditional-formats>
    </table:table>
    <table:named-expressions>
-    <table:named-range table:name="PROD" table:base-cell-address="$Inventory.$B$4" table:cell-range-address="$Inventory.$B$4:.$B$22"/>
-    <table:named-range table:name="PRODUCTS" table:base-cell-address="$'Price List'.$B$4" table:cell-range-address="$'Price List'.$B$4:.$B$235"/>
-    <table:named-range table:name="PRODUCTS_DB" table:base-cell-address="$Inventory.$D$4" table:cell-range-address="$'Price List'.$B$4:.$C$23"/>
-    <table:named-range table:name="STOCK" table:base-cell-address="$Inventory.$C$4" table:cell-range-address="$Inventory.$C$4:.$C$19"/>
+    <table:named-range
+     table:name="PROD"
+     table:base-cell-address="$Inventory.$B$4"
+     table:cell-range-address="$Inventory.$B$4:.$B$22"/>
+    <table:named-range
+     table:name="PRODUCTS"
+     table:base-cell-address="$'Price List'.$B$4"
+     table:cell-range-address="$'Price List'.$B$4:.$B$235"/>
+    <table:named-range
+     table:name="PRODUCTS_DB"
+     table:base-cell-address="$Inventory.$D$4"
+     table:cell-range-address="$'Price List'.$B$4:.$C$23"/>
+    <table:named-range
+     table:name="STOCK"
+     table:base-cell-address="$Inventory.$C$4"
+     table:cell-range-address="$Inventory.$C$4:.$C$19"/>
    </table:named-expressions>
    <table:database-ranges>
-    <table:database-range table:name="__Anonymous_Sheet_DB__0" table:target-range-address="'Price List'.B3:'Price List'.C8" table:display-filter-buttons="true"/>
+    <table:database-range
+     table:name="__Anonymous_Sheet_DB__0"
+     table:target-range-address="'Price List'.B3:'Price List'.C8"
+     table:display-filter-buttons="true"/>
    </table:database-ranges>
   </office:spreadsheet>
  </office:body>
