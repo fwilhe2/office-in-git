@@ -55,7 +55,6 @@
    <style:paragraph-properties
     style:text-autospace="ideograph-alpha"
     style:line-break="strict"
-    loext:tab-stop-distance="0cm"
     style:writing-mode="lr-tb"
     style:font-independent-line-spacing="false">
     <style:tab-stops/>

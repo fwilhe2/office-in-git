@@ -62,7 +62,6 @@
     style:text-autospace="ideograph-alpha"
     style:punctuation-wrap="simple"
     style:line-break="strict"
-    loext:tab-stop-distance="0cm"
     style:writing-mode="page"
     style:font-independent-line-spacing="false">
     <style:tab-stops/>
@@ -229,12 +228,12 @@
    style:parent-style-name="Default"
    style:data-style-name="N49"/>
   <style:style
-   style:name="ce12"
+   style:name="ce2"
    style:family="table-cell"
    style:parent-style-name="Default"
    style:data-style-name="N114"/>
   <style:style
-   style:name="ce13"
+   style:name="ce3"
    style:family="table-cell"
    style:parent-style-name="Pivot_20_Table_20_Field">
    <style:table-cell-properties
@@ -244,7 +243,7 @@
     fo:border-top="2.01pt solid #000000"/>
   </style:style>
   <style:style
-   style:name="ce14"
+   style:name="ce4"
    style:family="table-cell"
    style:parent-style-name="Pivot_20_Table_20_Category"
    style:data-style-name="N0">
@@ -255,7 +254,7 @@
     fo:border-top="0.99pt solid #000000"/>
   </style:style>
   <style:style
-   style:name="ce15"
+   style:name="ce5"
    style:family="table-cell"
    style:parent-style-name="Pivot_20_Table_20_Category"
    style:data-style-name="N0">
@@ -266,7 +265,7 @@
     fo:border-top="none"/>
   </style:style>
   <style:style
-   style:name="ce16"
+   style:name="ce6"
    style:family="table-cell"
    style:parent-style-name="Pivot_20_Table_20_Title"
    style:data-style-name="N0">
@@ -277,7 +276,7 @@
     fo:border-top="0.99pt solid #000000"/>
   </style:style>
   <style:style
-   style:name="ce17"
+   style:name="ce7"
    style:family="table-cell"
    style:parent-style-name="Pivot_20_Table_20_Corner"
    style:data-style-name="N114">
@@ -288,7 +287,7 @@
     fo:border-top="2.01pt solid #000000"/>
   </style:style>
   <style:style
-   style:name="ce18"
+   style:name="ce8"
    style:family="table-cell"
    style:parent-style-name="Pivot_20_Table_20_Value"
    style:data-style-name="N114">
@@ -299,7 +298,7 @@
     fo:border-top="0.99pt solid #000000"/>
   </style:style>
   <style:style
-   style:name="ce19"
+   style:name="ce9"
    style:family="table-cell"
    style:parent-style-name="Pivot_20_Table_20_Value"
    style:data-style-name="N114">
@@ -310,7 +309,7 @@
     fo:border-top="none"/>
   </style:style>
   <style:style
-   style:name="ce20"
+   style:name="ce10"
    style:family="table-cell"
    style:parent-style-name="Pivot_20_Table_20_Value"
    style:data-style-name="N114">
@@ -321,7 +320,7 @@
     fo:border-top="none"/>
   </style:style>
   <style:style
-   style:name="ce21"
+   style:name="ce11"
    style:family="table-cell"
    style:parent-style-name="Pivot_20_Table_20_Result"
    style:data-style-name="N114">
@@ -407,7 +406,7 @@
     <table:table-column
      table:style-name="co1"
      table:number-columns-repeated="2"
-     table:default-cell-style-name="ce12"/>
+     table:default-cell-style-name="ce2"/>
     <table:table-row table:style-name="ro1">
      <table:table-cell table:number-columns-repeated="6"/>
     </table:table-row>
@@ -878,7 +877,6 @@
         xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0"
         office:version="1.4"
         office:mimetype="application/vnd.oasis.opendocument.chart">
-        <office:meta/>
         <office:styles/>
         <office:automatic-styles>
          <number:number-style style:name="N0">
@@ -1129,27 +1127,27 @@
      table:default-cell-style-name="Default"/>
     <table:table-column
      table:style-name="co3"
-     table:default-cell-style-name="ce12"/>
+     table:default-cell-style-name="ce2"/>
     <table:table-row table:style-name="ro1">
      <table:table-cell
-      table:style-name="ce13"
+      table:style-name="ce3"
       office:value-type="string">
       <text:p>Salesperson Name</text:p>
      </table:table-cell>
      <table:table-cell
-      table:style-name="ce17"
+      table:style-name="ce7"
       office:value-type="string">
       <text:p>Sum - Sale Amount</text:p>
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell
-      table:style-name="ce14"
+      table:style-name="ce4"
       office:value-type="string">
       <text:p>Alice Smith</text:p>
      </table:table-cell>
      <table:table-cell
-      table:style-name="ce18"
+      table:style-name="ce8"
       office:value-type="currency"
       office:currency="EUR"
       office:value="4550">
@@ -1158,12 +1156,12 @@
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell
-      table:style-name="ce15"
+      table:style-name="ce5"
       office:value-type="string">
       <text:p>Bob Jones</text:p>
      </table:table-cell>
      <table:table-cell
-      table:style-name="ce19"
+      table:style-name="ce9"
       office:value-type="currency"
       office:currency="EUR"
       office:value="3200">
@@ -1172,12 +1170,12 @@
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell
-      table:style-name="ce15"
+      table:style-name="ce5"
       office:value-type="string">
       <text:p>Charlie Brown</text:p>
      </table:table-cell>
      <table:table-cell
-      table:style-name="ce19"
+      table:style-name="ce9"
       office:value-type="currency"
       office:currency="EUR"
       office:value="4890">
@@ -1186,12 +1184,12 @@
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell
-      table:style-name="ce15"
+      table:style-name="ce5"
       office:value-type="string">
       <text:p>Diana Prince</text:p>
      </table:table-cell>
      <table:table-cell
-      table:style-name="ce20"
+      table:style-name="ce10"
       office:value-type="currency"
       office:currency="EUR"
       office:value="4300">
@@ -1200,12 +1198,12 @@
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell
-      table:style-name="ce16"
+      table:style-name="ce6"
       office:value-type="string">
       <text:p>Total Result</text:p>
      </table:table-cell>
      <table:table-cell
-      table:style-name="ce21"
+      table:style-name="ce11"
       office:value-type="currency"
       office:currency="EUR"
       office:value="16940">

@@ -61,7 +61,6 @@
     style:text-autospace="ideograph-alpha"
     style:punctuation-wrap="simple"
     style:line-break="strict"
-    loext:tab-stop-distance="0cm"
     style:writing-mode="page"
     style:font-independent-line-spacing="false">
     <style:tab-stops/>
@@ -175,7 +174,7 @@
     style:writing-mode="lr-tb"/>
   </style:style>
   <style:style
-   style:name="ce3"
+   style:name="ce1"
    style:family="table-cell"
    style:parent-style-name="Default"
    style:data-style-name="N114"/>
@@ -247,7 +246,7 @@
      table:default-cell-style-name="Default"/>
     <table:table-column
      table:style-name="co3"
-     table:default-cell-style-name="ce3"/>
+     table:default-cell-style-name="ce1"/>
     <table:table-row
      table:style-name="ro1"
      table:number-rows-repeated="2">
@@ -362,7 +361,7 @@
      table:default-cell-style-name="Default"/>
     <table:table-column
      table:style-name="co1"
-     table:default-cell-style-name="ce3"/>
+     table:default-cell-style-name="ce1"/>
     <table:table-row
      table:style-name="ro1"
      table:number-rows-repeated="2">

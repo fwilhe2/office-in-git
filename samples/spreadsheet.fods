@@ -61,7 +61,6 @@
     style:text-autospace="ideograph-alpha"
     style:punctuation-wrap="simple"
     style:line-break="strict"
-    loext:tab-stop-distance="0cm"
     style:writing-mode="page"
     style:font-independent-line-spacing="false">
     <style:tab-stops/>
@@ -203,7 +202,6 @@
         xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0"
         office:version="1.4"
         office:mimetype="application/vnd.oasis.opendocument.chart">
-        <office:meta/>
         <office:styles/>
         <office:automatic-styles>
          <number:number-style style:name="N0">

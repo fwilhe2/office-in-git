@@ -140,6 +140,94 @@ def collect_all_attribute_list(usedstyles, attribute):
         for style in element.get(attribute).split(" "):
             usedstyles.add(style)
 
+def renumber_automatic_table_styles(root):
+    # LibreOffice assigns internal, sequential names to the automatic
+    # (per-document) table styles it generates - ce1, ce2, ... for cell
+    # styles, and co/ro/ta for column/row/table styles. The exact numbers
+    # are just an internal counter: re-saving the same document can shift
+    # every cell style from ce1..ce12 to ce24..ce35 with no semantic change,
+    # producing a huge, meaningless diff. Rename them canonically to a dense
+    # 1-based sequence per family, in document order, so the names are
+    # deterministic regardless of what counter LibreOffice happened to be at.
+    #
+    # References are rewritten too. Only two attributes ever point at these
+    # families - table:style-name (on table/column/row/cell) and
+    # table:default-cell-style-name (on table/column/row) - so we rewrite
+    # exactly those, which cannot touch an unrelated attribute that merely
+    # happens to hold a matching string. Named styles in office:styles are
+    # left alone; a reference to one simply isn't in the rename map.
+    office = "{urn:oasis:names:tc:opendocument:xmlns:office:1.0}"
+    style = "{urn:oasis:names:tc:opendocument:xmlns:style:1.0}"
+    table = "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}"
+    autostyles = root.find(".//" + office + "automatic-styles")
+    if autostyles is None:
+        return
+    family_prefix = {
+        "table": "ta",
+        "table-column": "co",
+        "table-row": "ro",
+        "table-cell": "ce",
+    }
+    counters = {prefix: 0 for prefix in family_prefix.values()}
+    rename = {}
+    # build the old -> new map from the original names first, in document
+    # order, before mutating anything
+    for st in autostyles.findall(style + "style"):
+        family = st.get(style + "family")
+        prefix = family_prefix.get(family)
+        if prefix is None:
+            continue
+        oldname = st.get(style + "name")
+        if oldname is None:
+            continue
+        counters[prefix] += 1
+        newname = prefix + str(counters[prefix])
+        if oldname != newname:
+            rename[oldname] = newname
+    if not rename:
+        return
+    # a canonical name must not collide with any style name that is NOT part
+    # of the set being renamed (e.g. a named style, or an automatic style of
+    # some other family); if it would, bail out rather than risk aliasing
+    allnames = set()
+    for st in root.iter(style + "style"):
+        n = st.get(style + "name")
+        if n is not None:
+            allnames.add(n)
+    survivors = allnames - set(rename.keys())
+    if survivors & set(rename.values()):
+        log("skipping table-style renumber to avoid name collision")
+        return
+    # apply to the definitions
+    for st in autostyles.findall(style + "style"):
+        n = st.get(style + "name")
+        if n in rename:
+            st.set(style + "name", rename[n])
+    # apply to the references
+    refattrs = (table + "style-name", table + "default-cell-style-name")
+    for element in root.iter():
+        for attr in refattrs:
+            v = element.get(attr)
+            if v is not None and v in rename:
+                element.set(attr, rename[v])
+
+_ZERO_LENGTH_RE = re.compile(r'^-?(?:\d+(?:\.\d+)?|\.\d+)')
+
+def remove_zero_loext_tab_stop_distance(root):
+    # LibreOffice adds loext:tab-stop-distance="0cm" (a LO extension
+    # attribute, no effect that the standard style:tab-stop-distance /
+    # style:tab-stops don't already express) to paragraph-properties on
+    # save, even when the source had none. A zero value is pure churn: strip
+    # it. A non-zero value could be a deliberate setting, so leave those.
+    loext = "{urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0}"
+    attr = loext + "tab-stop-distance"
+    for element in root.findall(".//*[@" + attr + "]"):
+        v = element.get(attr)
+        m = _ZERO_LENGTH_RE.match(v)
+        if m and float(m.group(0)) == 0:
+            log("removing zero-length loext:tab-stop-distance")
+            del element.attrib[attr]
+
 def remove_unused_namespaces(root):
     nsmap = root.nsmap
     textuallyused = set()
@@ -526,6 +614,14 @@ def remove_unused(root):
             if child.tag in volatilemetatags:
                 log("removing volatile meta element " + child.tag)
                 meta.remove(child)
+        # LibreOffice writes an office:meta on every save; once its volatile
+        # children are stripped it is often left completely empty, which is
+        # itself churn (the source had no office:meta at all). Drop an empty
+        # one; keep any that still carries real metadata (title, subject,
+        # keywords, description, ...).
+        if len(meta) == 0 and (meta.text is None or not meta.text.strip()):
+            log("removing empty office:meta")
+            meta.getparent().remove(meta)
 
     # 17) remove cached raster replacement images for OLE-ish objects
     # (charts, embedded spreadsheets, applets, plugins, floating frames).
@@ -563,7 +659,14 @@ def remove_unused(root):
     for element in root.findall(".//*[@" + calcextvaluetype + "]"):
         del element.attrib[calcextvaluetype]
 
-    # 19) drop namespace declarations that are not actually needed. LibreOffice
+    # 19) strip zero-length loext:tab-stop-distance churn
+    remove_zero_loext_tab_stop_distance(root)
+
+    # 20) give the automatic table styles canonical, deterministic names so
+    # LibreOffice's internal renumbering doesn't produce noise diffs
+    renumber_automatic_table_styles(root)
+
+    # 21) drop namespace declarations that are not actually needed. LibreOffice
     # declares ~35 namespaces on the root element, most of which no element or
     # attribute in a given document ever uses. lxml's own
     # etree.cleanup_namespaces() would handle this, but it only looks at

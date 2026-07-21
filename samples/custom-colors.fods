@@ -61,7 +61,6 @@
     style:text-autospace="ideograph-alpha"
     style:punctuation-wrap="simple"
     style:line-break="strict"
-    loext:tab-stop-distance="0cm"
     style:writing-mode="page"
     style:font-independent-line-spacing="false">
     <style:tab-stops/>
